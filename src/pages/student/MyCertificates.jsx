@@ -9,6 +9,7 @@ export default function MyCertificates() {
   const [certificates, setCertificates] = useState([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
+  const [qrModal, setQrModal] = useState(null)
 
   useEffect(() => {
     getCertificates(session?.id).then(items => {
@@ -87,6 +88,8 @@ export default function MyCertificates() {
                         src={`${API_URL}/api/certificates/qrcode/${certificate.id}`} 
                         alt="Verification QR Code" 
                         loading="lazy" 
+                        onClick={() => setQrModal(certificate.id)}
+                        style={{ cursor: 'pointer' }}
                       />
                     </div>
                   </div>
@@ -109,6 +112,20 @@ export default function MyCertificates() {
         <span>INFO</span>
         <span>Share your certificate ID with any verifier to confirm issuance against the blockchain ledger and run the AI forgery workflow.</span>
       </div>
+
+      {qrModal && (
+        <div className={s.modalOverlay} onClick={() => setQrModal(null)}>
+          <div className={s.modalContent} onClick={e => e.stopPropagation()}>
+            <button className={s.modalClose} onClick={() => setQrModal(null)}>&times;</button>
+            <img 
+              src={`${API_URL}/api/certificates/qrcode/${qrModal}`} 
+              alt="Verification QR Code" 
+              className={s.modalQr}
+            />
+            <p>Scan to verify certificate</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
