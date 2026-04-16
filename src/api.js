@@ -3,7 +3,7 @@ import axios from 'axios'
 const TOKEN_KEY = 'cvp_token'
 const SESSION_KEY = 'cvp_session'
 
-const API_URL = 'https://certportal-api.onrender.com'
+const API_URL = 'https://certportal-api.onrender.com/api'
 
 const client = axios.create({
   baseURL: API_URL,
