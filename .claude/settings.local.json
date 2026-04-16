@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/vigneshwar/Desktop/vigneshwar Project/certProject/cert-portal/**)",
+      "Bash(npm ls:*)",
+      "Bash(node -c src/main.jsx)",
+      "Bash(ipconfig)"
+    ]
+  }
+}
