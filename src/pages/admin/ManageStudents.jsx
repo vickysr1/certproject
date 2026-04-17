@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { createStudent, deleteStudent, getStudents, getCertificates, issueCertificate, uploadCertificate, openCertificateDocument } from '../../api.js'
+import { createStudent, deleteStudent, getStudents, getCertificates, issueCertificate, uploadCertificate, openCertificateDocument, BASE_URL } from '../../api.js'
 
 const DEGREES = [
   'Bachelor of Engineering',
@@ -57,6 +57,7 @@ export default function ManageStudents() {
   const [issueError, setIssueError] = useState({})
   const [issueSuccess, setIssueSuccess] = useState({})
   const [showIssueForm, setShowIssueForm] = useState({})
+  const [qrModal, setQrModal] = useState(null)
 
   const load = () => getStudents().then(items => {
     setStudents(items)
@@ -300,9 +301,14 @@ export default function ManageStudents() {
                                       <td>{cert.year}</td>
                                       <td>{cert.grade}</td>
                                       <td>
-                                        <button className="cert-expandBtn" onClick={() => openCertificateDocument(cert.id)}>
-                                          PDF
-                                        </button>
+                                        <div className="stud-certActions">
+                                          <button className="stud-pdfBtn" onClick={() => openCertificateDocument(cert.id)}>
+                                            PDF
+                                          </button>
+                                          <button className="stud-qrBtn" onClick={() => setQrModal(cert.id)}>
+                                            QR
+                                          </button>
+                                        </div>
                                       </td>
                                     </tr>
                                   ))}
@@ -385,6 +391,21 @@ export default function ManageStudents() {
           </table>
         )}
       </div>
+
+      {qrModal && (
+        <div className="stud-qrOverlay" onClick={() => setQrModal(null)}>
+          <div className="stud-qrModal" onClick={e => e.stopPropagation()}>
+            <button className="stud-qrClose" onClick={() => setQrModal(null)}>&times;</button>
+            <div className="stud-qrTitle">Verification QR Code</div>
+            <img
+              src={`${BASE_URL}/api/certificates/qrcode/${qrModal}`}
+              alt="Verification QR Code"
+              className="stud-qrImage"
+            />
+            <p className="stud-qrHint">Scan to verify on blockchain</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
