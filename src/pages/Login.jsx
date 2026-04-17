@@ -40,7 +40,7 @@ export default function Login() {
         </div>
 
         <h1 className="login-title">Academic Certificate<br /><em>Verification Portal</em></h1>
-        <p className="login-sub">Blockchain-secured | AI-reviewed</p>
+        <p className="login-sub">Blockchain-secured</p>
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="login-field">

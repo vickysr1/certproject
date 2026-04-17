@@ -3,9 +3,8 @@ import axios from 'axios'
 const TOKEN_KEY = 'cvp_token'
 const SESSION_KEY = 'cvp_session'
 
-const _raw = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '')
-const API_URL = _raw ? (_raw.endsWith('/api') ? _raw : `${_raw}/api`) : '/api'
-export const BASE_URL = API_URL.replace(/\/api$/, '')
+const API_URL = '/api'
+export const BASE_URL = ''
 
 const client = axios.create({
   baseURL: API_URL,
