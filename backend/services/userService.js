@@ -51,15 +51,13 @@ export async function createStudent(payload) {
 
 export async function archiveStudent(studentId) {
   return updateDatabase(async (database) => {
-    const student = database.users.find((user) => user.id === studentId && user.role === 'student');
+    const index = database.users.findIndex((user) => user.id === studentId && user.role === 'student');
 
-    if (!student) {
+    if (index === -1) {
       throw createHttpError(404, 'Student account not found');
     }
 
-    student.status = 'archived';
-    student.archivedAt = new Date().toISOString();
-
-    return sanitizeUser(student);
+    const [removed] = database.users.splice(index, 1);
+    return sanitizeUser(removed);
   });
 }

@@ -51,7 +51,7 @@ export default function ManageStudents() {
   }
 
   async function handleArchive(studentId) {
-    if (!window.confirm(`Archive student ${studentId}? Certificates already issued to this student will remain verifiable.`)) {
+    if (!window.confirm(`Delete student ${studentId}? This cannot be undone. Certificates already issued will remain verifiable.`)) {
       return
     }
 
@@ -176,9 +176,9 @@ export default function ManageStudents() {
                     <button
                       className="stud-delBtn"
                       onClick={() => handleArchive(student.id)}
-                      disabled={student.status !== 'active' || archiving === student.id}
+                      disabled={archiving === student.id}
                     >
-                      {archiving === student.id ? <span className="spinner" style={{ width: 14, height: 14 }} /> : 'Archive'}
+                      {archiving === student.id ? <span className="spinner" style={{ width: 14, height: 14 }} /> : 'Delete'}
                     </button>
                   </td>
                 </tr>
