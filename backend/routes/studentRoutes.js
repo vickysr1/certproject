@@ -7,13 +7,15 @@ import { archiveStudent, createStudent, listStudents } from '../services/userSer
 
 const router = Router();
 
+const optionalField = z.string().trim().optional().or(z.literal(''))
+
 const createStudentSchema = z.object({
   name: z.string().trim().min(3),
-  email: z.string().trim().min(2).optional(),
-  password: z.string().min(6),
-  department: z.string().trim().min(2).optional(),
-  batch: z.string().trim().min(4).optional(),
-  rollNumber: z.string().trim().min(3).optional(),
+  email: optionalField,
+  password: z.string().min(1),
+  department: optionalField,
+  batch: optionalField,
+  rollNumber: optionalField,
 });
 
 router.use(authenticate, requireRole('admin'));

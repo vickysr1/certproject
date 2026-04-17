@@ -99,7 +99,7 @@ export default function ManageStudents() {
             </div>
             <div className="stud-field">
               <label>Password *</label>
-              <input type="password" required placeholder="Min 8 characters with uppercase, lowercase, number" minLength={8} value={form.password} onChange={event => setField('password', event.target.value)} />
+              <input type="password" required placeholder="Enter password" value={form.password} onChange={event => setField('password', event.target.value)} />
             </div>
           </div>
 
