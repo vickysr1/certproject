@@ -95,7 +95,7 @@ export default function ManageStudents() {
             </div>
             <div className="stud-field">
               <label>Email *</label>
-              <input type="email" required placeholder="student@university.edu" value={form.email} onChange={event => setField('email', event.target.value)} />
+              <input type="email" placeholder="student@university.edu" value={form.email} onChange={event => setField('email', event.target.value)} />
             </div>
             <div className="stud-field">
               <label>Password *</label>
