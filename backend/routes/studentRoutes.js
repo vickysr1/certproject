@@ -9,7 +9,7 @@ const router = Router();
 
 const createStudentSchema = z.object({
   name: z.string().trim().min(3),
-  email: z.string().trim().email().optional().or(z.literal('')),
+  email: z.string().trim().min(2).optional(),
   password: z.string().min(6),
   department: z.string().trim().min(2).optional(),
   batch: z.string().trim().min(4).optional(),

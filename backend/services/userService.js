@@ -19,11 +19,11 @@ export function listStudents() {
 
 export async function createStudent(payload) {
   return updateDatabase(async (database) => {
-    const email = payload.email.trim().toLowerCase();
+    const email = payload.email?.trim().toLowerCase() || null;
     const rollNumber = payload.rollNumber?.trim() || null;
 
-    if (database.users.some((user) => user.email.toLowerCase() === email)) {
-      throw createHttpError(409, 'A student account already exists with this email address');
+    if (email && database.users.some((user) => user.email?.toLowerCase() === email)) {
+      throw createHttpError(409, 'A student account already exists with this username');
     }
 
     if (rollNumber && database.users.some((user) => user.rollNumber === rollNumber)) {

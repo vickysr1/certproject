@@ -94,8 +94,8 @@ export default function ManageStudents() {
               <input type="text" required placeholder="e.g. Ravi Kumar" value={form.name} onChange={event => setField('name', event.target.value)} />
             </div>
             <div className="stud-field">
-              <label>Email *</label>
-              <input type="email" placeholder="student@university.edu" value={form.email} onChange={event => setField('email', event.target.value)} />
+              <label>Username</label>
+              <input type="text" placeholder="e.g. john_doe" value={form.email} onChange={event => setField('email', event.target.value)} />
             </div>
             <div className="stud-field">
               <label>Password *</label>
@@ -163,8 +163,7 @@ export default function ManageStudents() {
                   <td><code className="stud-id">{student.id}</code></td>
                   <td>
                     {student.name}
-                    <br />
-                    <span className="stud-email">{student.email}</span>
+                    {student.email && <><br /><span className="stud-email">{student.email}</span></>}
                   </td>
                   <td>{student.department || 'General'}</td>
                   <td>
