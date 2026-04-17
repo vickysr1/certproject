@@ -606,6 +606,42 @@ tr:hover td {
 }
 .stud-issueRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
+.stud-certActions { display: flex; gap: 6px; }
+.stud-pdfBtn {
+  padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: var(--radius-sm);
+  background: var(--accent); color: white; border: none; cursor: pointer; transition: all 0.15s;
+}
+.stud-pdfBtn:hover { opacity: 0.85; }
+.stud-qrBtn {
+  padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: var(--radius-sm);
+  background: none; color: var(--accent); border: 1.5px solid var(--accent); cursor: pointer; transition: all 0.15s;
+}
+.stud-qrBtn:hover { background: var(--accent); color: white; }
+
+.stud-qrOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+.stud-qrModal {
+  background: var(--surface); border-radius: var(--radius); padding: 32px 28px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.25); min-width: 280px;
+  animation: scaleIn 0.15s ease;
+}
+.stud-qrClose {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; font-size: 22px; line-height: 1;
+  cursor: pointer; color: var(--text-2); transition: color 0.1s;
+}
+.stud-qrClose:hover { color: var(--text); }
+.stud-qrTitle { font-size: 15px; font-weight: 600; color: var(--text); }
+.stud-qrImage { width: 220px; height: 220px; display: block; border-radius: 6px; }
+.stud-qrHint { font-size: 12px; color: var(--text-3); margin: 0; }
+
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes scaleIn { from { transform: scale(0.92); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+
 /* ==========================================================================
    Issue Certificate (from IssueCertificate.module.css)
    ========================================================================== */
