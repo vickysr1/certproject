@@ -11,7 +11,7 @@ const optionalField = z.string().trim().optional().or(z.literal(''))
 
 const createStudentSchema = z.object({
   name: z.string().trim().min(3),
-  email: optionalField,
+  userId: optionalField,
   password: z.string().min(1),
   department: optionalField,
   batch: optionalField,

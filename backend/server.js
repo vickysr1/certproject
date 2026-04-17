@@ -5,13 +5,19 @@ import { bootstrapApplicationData } from './services/bootstrapService.js';
 
 async function startServer() {
   await initializeDatabase();
-  const bootstrap = await bootstrapApplicationData();
   const app = createApp();
 
   app.listen(config.port, () => {
     console.log(`${config.appName} API listening on http://localhost:${config.port}`);
-    console.log(`Seed certificates available: ${bootstrap.certificates}`);
-    console.log(`AI model: ${bootstrap.classifier.name} (${bootstrap.classifier.version})`);
+
+    bootstrapApplicationData()
+      .then(bootstrap => {
+        console.log(`Seed certificates available: ${bootstrap.certificates}`);
+        console.log(`AI model: ${bootstrap.classifier.name} (${bootstrap.classifier.version})`);
+      })
+      .catch(err => {
+        console.error('Bootstrap error (non-fatal):', err.message);
+      });
   });
 }
 

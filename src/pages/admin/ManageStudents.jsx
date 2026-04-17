@@ -3,7 +3,7 @@ import { createStudent, deleteStudent, getStudents } from '../../api.js'
 
 const INITIAL_FORM = {
   name: '',
-  email: '',
+  userId: '',
   password: '',
   department: '',
   batch: '',
@@ -94,8 +94,8 @@ export default function ManageStudents() {
               <input type="text" required placeholder="e.g. Ravi Kumar" value={form.name} onChange={event => setField('name', event.target.value)} />
             </div>
             <div className="stud-field">
-              <label>Username</label>
-              <input type="text" placeholder="e.g. john_doe" value={form.email} onChange={event => setField('email', event.target.value)} />
+              <label>User ID</label>
+              <input type="text" placeholder="e.g. student03" value={form.userId} onChange={event => setField('userId', event.target.value)} />
             </div>
             <div className="stud-field">
               <label>Password *</label>

@@ -19,11 +19,11 @@ export function listStudents() {
 
 export async function createStudent(payload) {
   return updateDatabase(async (database) => {
-    const email = payload.email?.trim().toLowerCase() || null;
+    const userId = payload.userId?.trim() || null;
     const rollNumber = payload.rollNumber?.trim() || null;
 
-    if (email && database.users.some((user) => user.email?.toLowerCase() === email)) {
-      throw createHttpError(409, 'A student account already exists with this username');
+    if (userId && database.users.some((user) => user.id === userId)) {
+      throw createHttpError(409, 'A student account already exists with this User ID');
     }
 
     if (rollNumber && database.users.some((user) => user.rollNumber === rollNumber)) {
@@ -31,12 +31,11 @@ export async function createStudent(payload) {
     }
 
     const student = {
-      id: nextStudentId(database),
+      id: userId || nextStudentId(database),
       passwordHash: hashSync(payload.password, 10),
       role: 'student',
       status: 'active',
       name: normalizeText(payload.name),
-      email,
       department: normalizeText(payload.department || 'General'),
       batch: normalizeText(payload.batch || 'Current Batch'),
       rollNumber: rollNumber || `AUTO-${Date.now().toString().slice(-6)}`,
