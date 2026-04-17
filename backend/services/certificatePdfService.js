@@ -134,17 +134,41 @@ export async function generateCertificatePdf(certificate, block) {
     });
   });
 
+  // Embed QR Code — bottom-left, inside inner border
+  const qrCodeUrl = `${config.publicUrl}/verify/${certificate.id}`;
+  const qrCodeBuffer = await generateQrCodeBuffer(qrCodeUrl);
+  const qrCodeImage = await pdf.embedPng(qrCodeBuffer);
+  const qrSize = 88;
+  const qrX = 44;
+  const qrY = 44;
+  page.drawImage(qrCodeImage, {
+    x: qrX,
+    y: qrY,
+    width: qrSize,
+    height: qrSize,
+  });
+
+  page.drawText('Scan to verify', {
+    x: qrX + 8,
+    y: qrY - 13,
+    font: bodyFont,
+    size: 8,
+    color: rgb(0.4, 0.45, 0.55),
+  });
+
+  // Verifier hash — to the right of the QR code
+  const hashX = qrX + qrSize + 16;
   page.drawText('Verifier Hash', {
-    x: 90,
+    x: hashX,
     y: 120,
     font: headingFont,
     size: 11,
     color: rgb(0.25, 0.3, 0.39),
   });
 
-  wrapMonospaceText(certificate.documentHash, 54).forEach((line, index) => {
+  wrapMonospaceText(certificate.documentHash, 42).forEach((line, index) => {
     page.drawText(line, {
-      x: 90,
+      x: hashX,
       y: 102 - index * 12,
       font: monoFont,
       size: 8.5,
@@ -173,18 +197,6 @@ export async function generateCertificatePdf(certificate, block) {
     font: bodyFont,
     size: 10,
     color: rgb(0.12, 0.16, 0.27),
-  });
-
-  // Embed QR Code
-  const qrCodeUrl = `${config.publicUrl}/verify/${certificate.id}`;
-  const qrCodeBuffer = await generateQrCodeBuffer(qrCodeUrl);
-  const qrCodeImage = await pdf.embedPng(qrCodeBuffer);
-  const qrSize = 80;
-  page.drawImage(qrCodeImage, {
-    x: width - qrSize - 40,
-    y: 40,
-    width: qrSize,
-    height: qrSize,
   });
 
   const bytes = await pdf.save();
