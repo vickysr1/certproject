@@ -2,6 +2,7 @@ import 'dotenv/config';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 
 /**
  * Automatically detect local IP address for mobile testing on same network
@@ -19,8 +20,8 @@ function getLocalIp() {
 }
 
 const localIp = getLocalIp();
-const rootDir = process.cwd();
-const backendDir = path.join(rootDir, 'backend');
+const backendDir = path.dirname(fileURLToPath(import.meta.url));
+const rootDir = path.dirname(backendDir);
 // Support custom data directory (e.g., /tmp on Render for writable storage)
 const dataDir = process.env.DATA_DIR ? path.join(process.env.DATA_DIR) : path.join(backendDir, 'data');
 const storageDir = path.join(backendDir, 'storage');
