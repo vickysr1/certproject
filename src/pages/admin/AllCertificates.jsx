@@ -1,6 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
 import { getCertificates, openCertificateDocument } from '../../api.js'
-import s from './AllCertificates.module.css'
 
 export default function AllCertificates() {
   const [certificates, setCertificates] = useState([])
@@ -23,22 +22,22 @@ export default function AllCertificates() {
   )
 
   return (
-    <div className={s.root}>
-      <div className={s.header}>
+    <div className="cert-root">
+      <div className="cert-header">
         <div>
           <h1>All Certificates</h1>
           <p>{certificates.length} certificate{certificates.length !== 1 ? 's' : ''} registered on the private ledger</p>
         </div>
-        <input className={s.search} type="text" placeholder="Search by name, ID, degree..." value={search} onChange={event => setSearch(event.target.value)} />
+        <input className="cert-search" type="text" placeholder="Search by name, ID, degree..." value={search} onChange={event => setSearch(event.target.value)} />
       </div>
 
-      <div className={s.tableWrap}>
+      <div className="cert-tableWrap">
         {loading ? (
-          <div className={s.empty}><span className="spinner" /></div>
+          <div className="cert-empty"><span className="spinner" /></div>
         ) : filtered.length === 0 ? (
-          <div className={s.empty}>{search ? 'No results found.' : 'No certificates issued yet.'}</div>
+          <div className="cert-empty">{search ? 'No results found.' : 'No certificates issued yet.'}</div>
         ) : (
-          <table className={s.table}>
+          <table className="cert-table">
             <thead>
               <tr>
                 <th>Certificate ID</th>
@@ -53,33 +52,33 @@ export default function AllCertificates() {
             <tbody>
               {filtered.map(certificate => (
                 <Fragment key={certificate.id}>
-                  <tr className={expanded === certificate.id ? s.expandedRow : ''}>
-                    <td><span className={s.certId}>{certificate.id}</span></td>
-                    <td>{certificate.studentName}<br /><span className={s.sub}>{certificate.studentId}</span></td>
-                    <td>{certificate.degree}<br /><span className={s.sub}>{certificate.branch}</span></td>
+                  <tr className={expanded === certificate.id ? 'cert-expandedRow' : ''}>
+                    <td><span className="cert-certId">{certificate.id}</span></td>
+                    <td>{certificate.studentName}<br /><span className="cert-sub">{certificate.studentId}</span></td>
+                    <td>{certificate.degree}<br /><span className="cert-sub">{certificate.branch}</span></td>
                     <td>{certificate.year}</td>
-                    <td className={s.grade}>{certificate.grade}</td>
+                    <td className="cert-grade">{certificate.grade}</td>
                     <td><span className="badge badge-green">Issued</span></td>
                     <td>
-                      <button className={s.expandBtn} onClick={() => setExpanded(expanded === certificate.id ? null : certificate.id)}>
+                      <button className="cert-expandBtn" onClick={() => setExpanded(expanded === certificate.id ? null : certificate.id)}>
                         {expanded === certificate.id ? 'Hide' : 'View'}
                       </button>
                     </td>
                   </tr>
                   {expanded === certificate.id && (
-                    <tr className={s.detailRow}>
+                    <tr className="cert-detailRow">
                       <td colSpan={7}>
-                        <div className={s.detail}>
-                          <div className={s.detailItem}><span>Institution</span>{certificate.institution}</div>
-                          <div className={s.detailItem}><span>Issued</span>{new Date(certificate.issuedAt).toLocaleString()}</div>
-                          <div className={s.detailItem}><span>Block</span>{certificate.blockNumber}</div>
-                          <div className={s.detailItem}><span>Transaction</span>{certificate.transactionId}</div>
-                          <div className={s.detailItem} style={{ flexDirection: 'column', gap: 4 }}>
+                        <div className="cert-detail">
+                          <div className="cert-detailItem"><span>Institution</span>{certificate.institution}</div>
+                          <div className="cert-detailItem"><span>Issued</span>{new Date(certificate.issuedAt).toLocaleString()}</div>
+                          <div className="cert-detailItem"><span>Block</span>{certificate.blockNumber}</div>
+                          <div className="cert-detailItem"><span>Transaction</span>{certificate.transactionId}</div>
+                          <div className="cert-detailItem cert-detailFull">
                             <span>Blockchain Hash</span>
-                            <code className={s.hash}>{certificate.blockchainHash}</code>
+                            <code className="cert-hash">{certificate.blockchainHash}</code>
                           </div>
-                          <div className={s.detailItem} style={{ paddingTop: 10 }}>
-                            <button className={s.expandBtn} onClick={() => openCertificateDocument(certificate.id)}>
+                          <div className="cert-detailItem cert-detailFull">
+                            <button className="cert-expandBtn" onClick={() => openCertificateDocument(certificate.id)}>
                               Open PDF
                             </button>
                           </div>

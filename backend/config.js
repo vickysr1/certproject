@@ -21,8 +21,10 @@ function getLocalIp() {
 const localIp = getLocalIp();
 const rootDir = process.cwd();
 const backendDir = path.join(rootDir, 'backend');
-const dataDir = path.join(backendDir, 'data');
+// Support custom data directory (e.g., /tmp on Render for writable storage)
+const dataDir = process.env.DATA_DIR ? path.join(process.env.DATA_DIR) : path.join(backendDir, 'data');
 const storageDir = path.join(backendDir, 'storage');
+console.log(`[config] Data directory: ${dataDir}`);
 const certificateStorageDir = path.join(storageDir, 'certificates');
 const uploadStorageDir = path.join(storageDir, 'uploads');
 const modelDir = path.join(backendDir, 'models');

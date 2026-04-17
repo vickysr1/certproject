@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { verifyCertificate, verifyUploadedCertificate } from '../../api.js'
-import s from './VerifyCertificate.module.css'
 
 function isPdfFile(file) {
   return file?.type === 'application/pdf' || file?.name?.toLowerCase().endsWith('.pdf')
@@ -71,25 +70,25 @@ export default function VerifyCertificate() {
     : `Verify Uploaded ${isPdfFile(file) ? 'PDF' : 'File'}`
 
   return (
-    <div className={s.root}>
-      <div className={s.header}>
+    <div className="verify-root">
+      <div className="verify-header">
         <h1>Verify Certificate</h1>
         <p>Run blockchain lookup, official PDF validation, and AI-based image forgery checks</p>
       </div>
 
-      <div className={s.tabs}>
-        <button className={`${s.tab} ${tab === 'id' ? s.active : ''}`} onClick={() => { setTab('id'); setResult(null); setError('') }}>
+      <div className="verify-tabs">
+        <button className={`verify-tab ${tab === 'id' ? 'verify-tab active' : ''}`} onClick={() => { setTab('id'); setResult(null); setError('') }}>
           Verify by Certificate ID
         </button>
-        <button className={`${s.tab} ${tab === 'upload' ? s.active : ''}`} onClick={() => { setTab('upload'); setResult(null); setError('') }}>
+        <button className={`verify-tab ${tab === 'upload' ? 'verify-tab active' : ''}`} onClick={() => { setTab('upload'); setResult(null); setError('') }}>
           Upload PDF or Image
         </button>
       </div>
 
-      <div className={s.body}>
+      <div className="verify-body">
         {tab === 'id' ? (
-          <form onSubmit={handleVerifyById} className={s.form}>
-            <div className={s.field}>
+          <form onSubmit={handleVerifyById} className="verify-form">
+            <div className="verify-field">
               <label>Certificate ID</label>
               <input
                 type="text"
@@ -98,17 +97,17 @@ export default function VerifyCertificate() {
                 value={certId}
                 onChange={event => setCertId(event.target.value)}
               />
-              <span className={s.fieldHint}>Use the certificate ID to validate the blockchain record directly.</span>
+              <span className="verify-fieldHint">Use the certificate ID to validate the blockchain record directly.</span>
             </div>
-            {error && <p className={s.error}>Error: {error}</p>}
-            <button type="submit" className={s.btn} disabled={loading}>
+            {error && <p className="verify-error">Error: {error}</p>}
+            <button type="submit" className="verify-btn" disabled={loading}>
               {loading ? <><span className="spinner" /> Checking ledger...</> : 'Verify on Blockchain'}
             </button>
           </form>
         ) : (
-          <form onSubmit={handleVerifyFile} className={s.form}>
+          <form onSubmit={handleVerifyFile} className="verify-form">
             <div
-              className={`${s.dropzone} ${file ? s.hasFile : ''}`}
+              className={`verify-dropzone ${file ? 'verify-dropzone hasFile' : ''}`}
               onDrop={handleDrop}
               onDragOver={event => event.preventDefault()}
               onClick={() => fileRef.current.click()}
@@ -122,23 +121,23 @@ export default function VerifyCertificate() {
               />
               {file ? (
                 <>
-                  <span className={s.fileIcon}>{uploadLabel}</span>
-                  <span className={s.fileName}>{file.name}</span>
-                  <span className={s.fileSize}>{(file.size / 1024).toFixed(1)} KB</span>
-                  <button type="button" className={s.clearFile} onClick={event => { event.stopPropagation(); setFile(null) }}>
+                  <span className="verify-fileIcon">{uploadLabel}</span>
+                  <span className="verify-fileName">{file.name}</span>
+                  <span className="verify-fileSize">{(file.size / 1024).toFixed(1)} KB</span>
+                  <button type="button" className="verify-clearFile" onClick={event => { event.stopPropagation(); setFile(null) }}>
                     Remove
                   </button>
                 </>
               ) : (
                 <>
-                  <span className={s.dropIcon}>UP</span>
-                  <span className={s.dropText}>Drag and drop a certificate PDF or image, or click to browse</span>
-                  <span className={s.dropSub}>PDF, PNG, JPG, JPEG, and WEBP are supported</span>
+                  <span className="verify-dropIcon">UP</span>
+                  <span className="verify-dropText">Drag and drop a certificate PDF or image, or click to browse</span>
+                  <span className="verify-dropSub">PDF, PNG, JPG, JPEG, and WEBP are supported</span>
                 </>
               )}
             </div>
-            {error && <p className={s.error}>Error: {error}</p>}
-            <button type="submit" className={s.btn} disabled={loading || !file}>
+            {error && <p className="verify-error">Error: {error}</p>}
+            <button type="submit" className="verify-btn" disabled={loading || !file}>
               {loading ? <><span className="spinner" /> {uploadButtonLabel}</> : uploadButtonLabel}
             </button>
           </form>
@@ -154,10 +153,10 @@ function ResultPanel({ result }) {
   if (result.mode === 'id') {
     if (!result.valid) {
       return (
-        <div className={`${s.result} ${s.invalid}`}>
-          <div className={s.resultIcon}>X</div>
-          <div className={s.resultTitle}>Certificate Not Found</div>
-          <p className={s.resultSub}>{result.reason}</p>
+        <div className="verify-result verify-invalid">
+          <div className="verify-resultIcon">X</div>
+          <div className="verify-resultTitle">Certificate Not Found</div>
+          <p className="verify-resultSub">{result.reason}</p>
         </div>
       )
     }
@@ -167,18 +166,18 @@ function ResultPanel({ result }) {
     const blockchain = result.blockchainResult
 
     return (
-      <div className={`${s.result} ${s.valid}`}>
-        <div className={s.resultTop}>
-          <div className={s.resultIcon}>OK</div>
+      <div className="verify-result verify-valid">
+        <div className="verify-resultTop">
+          <div className="verify-resultIcon">OK</div>
           <div>
-            <div className={s.resultTitle}>Certificate Verified</div>
-            <div className={s.resultSub}>Ledger fingerprint matched the stored issuance block.</div>
+            <div className="verify-resultTitle">Certificate Verified</div>
+            <div className="verify-resultSub">Ledger fingerprint matched the stored issuance block.</div>
           </div>
         </div>
 
-        <div className={s.panels}>
-          <div className={s.panel}>
-            <div className={s.panelTitle}>Certificate Details</div>
+        <div className="verify-panels">
+          <div className="verify-panel">
+            <div className="verify-panelTitle">Certificate Details</div>
             <Row label="ID" value={certificate.id} mono />
             <Row label="Student" value={certificate.studentName} />
             <Row label="Degree" value={certificate.degree} />
@@ -188,12 +187,12 @@ function ResultPanel({ result }) {
             <Row label="Institution" value={certificate.institution} />
           </div>
 
-          <div className={s.panel}>
-            <div className={s.panelTitle}>Integrity Analysis</div>
-            <Meter label="Confidence" value={ai.confidence} color="var(--green)" />
-            <Meter label="Tamper Score" value={ai.tamperScore} color={parseFloat(ai.tamperScore) > 20 ? 'var(--red)' : 'var(--teal)'} />
+          <div className="verify-panel">
+            <div className="verify-panelTitle">Integrity Analysis</div>
+            <Meter label="Confidence" value={ai.confidence} color="var(--success)" />
+            <Meter label="Tamper Score" value={ai.tamperScore} color={parseFloat(ai.tamperScore) > 20 ? 'var(--danger)' : 'var(--accent-2)'} />
 
-            <div className={s.panelTitle} style={{ marginTop: 16 }}>Blockchain Record</div>
+            <div className="verify-panelTitle" style={{ marginTop: 16 }}>Blockchain Record</div>
             <Row label="Block" value={blockchain.blockNumber} />
             <Row label="Confirmed" value={blockchain.confirmed ? 'Yes' : 'No'} />
             <Row label="Validator" value={blockchain.validator} />
@@ -220,23 +219,23 @@ function UploadResultPanel({ result }) {
     : result.fileName
 
   return (
-    <div className={`${s.result} ${authentic ? s.valid : s.invalid}`}>
-      <div className={s.resultTop}>
-        <div className={s.resultIcon}>{authentic ? 'OK' : 'AL'}</div>
+    <div className={`verify-result ${authentic ? 'verify-valid' : 'verify-invalid'}`}>
+      <div className="verify-resultTop">
+        <div className="verify-resultIcon">{authentic ? 'OK' : 'AL'}</div>
         <div>
-          <div className={s.resultTitle}>{title}</div>
-          <div className={s.resultSub}>{subtitle}</div>
+          <div className="verify-resultTitle">{title}</div>
+          <div className="verify-resultSub">{subtitle}</div>
         </div>
       </div>
 
-      <div className={s.meters}>
-        <Meter label="Verification Confidence" value={ai.confidence} color={authentic ? 'var(--green)' : 'var(--red)'} />
-        <Meter label="Tamper Score" value={ai.tamperScore} color={parseFloat(ai.tamperScore) > 20 ? 'var(--red)' : 'var(--teal)'} />
+      <div className="verify-meters">
+        <Meter label="Verification Confidence" value={ai.confidence} color={authentic ? 'var(--success)' : 'var(--danger)'} />
+        <Meter label="Tamper Score" value={ai.tamperScore} color={parseFloat(ai.tamperScore) > 20 ? 'var(--danger)' : 'var(--accent-2)'} />
       </div>
 
-      <div className={s.panels}>
-        <div className={s.panel}>
-          <div className={s.panelTitle}>Verification Output</div>
+      <div className="verify-panels">
+        <div className="verify-panel">
+          <div className="verify-panelTitle">Verification Output</div>
           <Row label="Model" value={ai.model.name} />
           <Row label="Version" value={ai.model.version} />
           <Row label="Predicted" value={ai.model.predictedLabel} />
@@ -245,8 +244,8 @@ function UploadResultPanel({ result }) {
           <Row label="Forged Prob." value={`${ai.model.forgedProbability}%`} />
         </div>
 
-        <div className={s.panel}>
-          <div className={s.panelTitle}>{isPdf ? 'PDF Evidence' : 'Image Evidence'}</div>
+        <div className="verify-panel">
+          <div className="verify-panelTitle">{isPdf ? 'PDF Evidence' : 'Image Evidence'}</div>
           {isPdf ? (
             <>
               <Row label="File Type" value={ai.evidence.fileType} />
@@ -270,9 +269,9 @@ function UploadResultPanel({ result }) {
       </div>
 
       {isPdf && result.matchedCertificate && (
-        <div className={s.panels} style={{ marginTop: 20 }}>
-          <div className={s.panel}>
-            <div className={s.panelTitle}>Matched Certificate</div>
+        <div className="verify-panels" style={{ marginTop: 20 }}>
+          <div className="verify-panel">
+            <div className="verify-panelTitle">Matched Certificate</div>
             <Row label="Certificate ID" value={result.matchedCertificate.id} mono />
             <Row label="Student" value={result.matchedCertificate.studentName} />
             <Row label="Degree" value={result.matchedCertificate.degree} />
@@ -283,9 +282,9 @@ function UploadResultPanel({ result }) {
         </div>
       )}
 
-      <div className={s.detailList} style={{ marginTop: 20 }}>
+      <div className="verify-detailList" style={{ marginTop: 20 }}>
         {ai.details.map((detail, index) => (
-          <div key={index} className={`${s.detailItem} ${authentic ? s.detailOk : s.detailBad}`}>
+          <div key={index} className={`verify-detailItem ${authentic ? 'verify-detailOk' : 'verify-detailBad'}`}>
             <span>{authentic ? 'OK' : 'AL'}</span>{detail}
           </div>
         ))}
@@ -296,13 +295,13 @@ function UploadResultPanel({ result }) {
 
 function Meter({ label, value, color }) {
   return (
-    <div className={s.meter}>
-      <div className={s.meterLabel}>
+    <div className="verify-meter">
+      <div className="verify-meterLabel">
         <span>{label}</span>
-        <span className={s.meterVal} style={{ color }}>{value}%</span>
+        <span className="verify-meterVal" style={{ color }}>{value}%</span>
       </div>
-      <div className={s.meterBar}>
-        <div className={s.meterFill} style={{ width: `${value}%`, background: color }} />
+      <div className="verify-meterBar">
+        <div className="verify-meterFill" style={{ width: `${value}%`, background: color }} />
       </div>
     </div>
   )
@@ -311,8 +310,8 @@ function Meter({ label, value, color }) {
 function Row({ label, value, mono }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border)', gap: 8, alignItems: 'baseline' }}>
-      <span style={{ fontSize: 12, color: 'var(--muted)', flexShrink: 0 }}>{label}</span>
-      <span style={{ fontSize: 12, color: mono ? 'var(--teal)' : 'var(--text)', textAlign: 'right', fontFamily: mono ? 'Courier New, monospace' : 'inherit', wordBreak: 'break-all' }}>{value}</span>
+      <span style={{ fontSize: 12, color: 'var(--text-3)', flexShrink: 0 }}>{label}</span>
+      <span style={{ fontSize: 12, color: mono ? 'var(--accent-2)' : 'var(--text)', textAlign: 'right', fontFamily: mono ? 'Courier New, monospace' : 'inherit', wordBreak: 'break-all' }}>{value}</span>
     </div>
   )
 }

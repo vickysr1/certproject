@@ -68,7 +68,12 @@ function createDefaultState() {
 
 async function writeDatabase(nextDatabase) {
   database = nextDatabase;
-  await fs.writeFile(config.databasePath, JSON.stringify(nextDatabase, null, 2));
+  try {
+    await fs.writeFile(config.databasePath, JSON.stringify(nextDatabase, null, 2));
+  } catch (err) {
+    console.error(`[database] Failed to persist database to ${config.databasePath}:`, err);
+    throw err;
+  }
 }
 
 function ensureInitialized() {
@@ -78,6 +83,7 @@ function ensureInitialized() {
 }
 
 export async function initializeDatabase() {
+  console.log(`[database] Initializing from ${config.databasePath}`);
   try {
     const raw = await fs.readFile(config.databasePath, 'utf8');
     database = JSON.parse(raw);
@@ -108,11 +114,25 @@ export function updateDatabase(mutator) {
 
   const run = writeQueue.then(async () => {
     const draft = structuredClone(database);
-    const result = await mutator(draft);
-    await writeDatabase(draft);
+    let result;
+    try {
+      result = await mutator(draft);
+    } catch (err) {
+      console.error('[database] Mutator error:', err);
+      throw err;
+    }
+    try {
+      await writeDatabase(draft);
+    } catch (err) {
+      console.error('[database] Persistence error:', err);
+      throw err;
+    }
     return result;
   });
 
-  writeQueue = run.catch(() => {});
+  writeQueue = run.catch((err) => {
+    console.error('[database] Queue error:', err);
+    // Swallow error to keep queue alive for subsequent operations
+  });
   return run;
 }

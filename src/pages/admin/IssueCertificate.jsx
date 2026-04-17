@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { getStudents, issueCertificate, uploadCertificate, openCertificateDocument } from '../../api.js'
-import s from './IssueCertificate.module.css'
 
 const DEGREES = [
   'Bachelor of Engineering',
@@ -69,8 +68,8 @@ export default function IssueCertificate() {
   }
 
   return (
-    <div className={s.root}>
-      <div className={s.header}>
+    <div className="issue-root">
+      <div className="issue-header">
         <h1>{isUpload ? 'Upload Certificate' : 'Issue Certificate'}</h1>
         <p>{isUpload ? 'Register an existing certificate image or PDF on the blockchain' : 'Create a certificate record, PDF document, and blockchain entry in one flow'}</p>
       </div>
@@ -78,25 +77,35 @@ export default function IssueCertificate() {
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <button 
           onClick={() => setIsUpload(false)} 
-          className={s.btn} 
-          style={{ padding: '8px 16px', background: !isUpload ? 'var(--gold)' : 'var(--navy2)', color: !isUpload ? 'var(--navy)' : 'var(--text)', flex: 1 }}
+          className="issue-btn"
+          style={{ 
+            padding: '8px 16px', 
+            background: !isUpload ? 'var(--accent)' : 'var(--surface-2)', 
+            color: !isUpload ? 'white' : 'var(--text-2)', 
+            flex: 1 
+          }}
         >
           Issue New
         </button>
         <button 
           onClick={() => setIsUpload(true)} 
-          className={s.btn} 
-          style={{ padding: '8px 16px', background: isUpload ? 'var(--gold)' : 'var(--navy2)', color: isUpload ? 'var(--navy)' : 'var(--text)', flex: 1 }}
+          className="issue-btn"
+          style={{ 
+            padding: '8px 16px', 
+            background: isUpload ? 'var(--accent)' : 'var(--surface-2)', 
+            color: isUpload ? 'white' : 'var(--text-2)', 
+            flex: 1 
+          }}
         >
           Upload Existing
         </button>
       </div>
 
-      <div className={s.layout}>
-        <form onSubmit={handleSubmit} className={s.form}>
-          <div className={s.section}>Student Details</div>
+      <div className="issue-layout">
+        <form onSubmit={handleSubmit} className="issue-form">
+          <div className="issue-section">Student Details</div>
 
-          <div className={s.field}>
+          <div className="issue-field">
             <label>Student *</label>
             <select required value={form.studentId} onChange={event => setField('studentId', event.target.value)}>
               <option value="">Select student</option>
@@ -107,32 +116,32 @@ export default function IssueCertificate() {
               ))}
             </select>
             {students.filter(student => student.status === 'active').length === 0 && (
-              <span className={s.hint}>No active students yet. Create one in Manage Students first.</span>
+              <span className="issue-hint">No active students yet. Create one in Manage Students first.</span>
             )}
           </div>
 
-          <div className={s.section}>Academic Details</div>
+          <div className="issue-section">Academic Details</div>
 
-          <div className={s.row}>
-            <div className={s.field}>
+          <div className="issue-row">
+            <div className="issue-field">
               <label>Degree / Programme *</label>
               <select required value={form.degree} onChange={event => setField('degree', event.target.value)}>
                 <option value="">Select degree</option>
                 {DEGREES.map(degree => <option key={degree}>{degree}</option>)}
               </select>
             </div>
-            <div className={s.field}>
+            <div className="issue-field">
               <label>Branch / Specialisation *</label>
               <input type="text" required placeholder="e.g. Computer Science" value={form.branch} onChange={event => setField('branch', event.target.value)} />
             </div>
           </div>
 
-          <div className={s.row}>
-            <div className={s.field}>
+          <div className="issue-row">
+            <div className="issue-field">
               <label>Year of Passing *</label>
               <input type="number" required min="2000" max="2035" value={form.year} onChange={event => setField('year', event.target.value)} />
             </div>
-            <div className={s.field}>
+            <div className="issue-field">
               <label>Grade / Class *</label>
               <select required value={form.grade} onChange={event => setField('grade', event.target.value)}>
                 <option value="">Select grade</option>
@@ -141,13 +150,13 @@ export default function IssueCertificate() {
             </div>
           </div>
 
-          <div className={s.field}>
+          <div className="issue-field">
             <label>Issuing Institution *</label>
             <input type="text" required value={form.institution} onChange={event => setField('institution', event.target.value)} />
           </div>
 
           {isUpload && (
-            <div className={s.field}>
+            <div className="issue-field">
               <label>Certificate File (PDF or Image) *</label>
               <input 
                 type="file" 
@@ -156,34 +165,34 @@ export default function IssueCertificate() {
                 onChange={event => setFile(event.target.files[0])}
                 style={{ paddingTop: 8 }}
               />
-              <span className={s.hint}>This file will be hashed and registered on the ledger.</span>
+              <span className="issue-hint">This file will be hashed and registered on the ledger.</span>
             </div>
           )}
 
-          {error && <p className={s.error}>Error: {error}</p>}
+          {error && <p className="issue-error">Error: {error}</p>}
 
-          <button type="submit" className={s.btn} disabled={loading}>
+          <button type="submit" className="issue-btn" disabled={loading}>
             {loading
               ? <><span className="spinner" /> {isUpload ? 'Uploading and Registering...' : 'Registering on ledger...'}</>
               : (isUpload ? 'Upload and Register' : 'Issue Certificate')}
           </button>
         </form>
 
-        <div className={s.side}>
-          <div className={s.infoBox}>
-            <div className={s.infoTitle}>Workflow</div>
-            <div className={s.infoStep}><span>1</span> Capture the student and academic details.</div>
-            <div className={s.infoStep}><span>2</span> Generate a unique certificate ID and immutable document hash.</div>
-            <div className={s.infoStep}><span>3</span> Anchor the record on the private blockchain ledger.</div>
-            <div className={s.infoStep}><span>4</span> Render a PDF certificate for download and future checks.</div>
-            <div className={s.infoStep}><span>5</span> Enable blockchain verification and AI forgery analysis.</div>
+        <div className="issue-side">
+          <div className="issue-infoBox">
+            <div className="issue-infoTitle">Workflow</div>
+            <div className="issue-infoStep"><span>1</span> Capture the student and academic details.</div>
+            <div className="issue-infoStep"><span>2</span> Generate a unique certificate ID and immutable document hash.</div>
+            <div className="issue-infoStep"><span>3</span> Anchor the record on the private blockchain ledger.</div>
+            <div className="issue-infoStep"><span>4</span> Render a PDF certificate for download and future checks.</div>
+            <div className="issue-infoStep"><span>5</span> Enable blockchain verification and AI forgery analysis.</div>
           </div>
 
           {result && (
-            <div className={s.success}>
-              <div className={s.successIcon}>OK</div>
-              <div className={s.successTitle}>Certificate issued successfully</div>
-              <div className={s.certCard}>
+            <div className="issue-success">
+              <div className="issue-successIcon">OK</div>
+              <div className="issue-successTitle">Certificate issued successfully</div>
+              <div className="issue-certCard">
                 <Row label="Certificate ID" value={result.id} gold />
                 <Row label="Student" value={result.studentName} />
                 <Row label="Degree" value={result.degree} />
@@ -191,14 +200,14 @@ export default function IssueCertificate() {
                 <Row label="Grade" value={result.grade} />
                 <Row label="Block Number" value={String(result.blockNumber)} />
               </div>
-              <div className={s.hashBox}>
-                <div className={s.hashLabel}>Blockchain Hash</div>
-                <div className={s.hash}>{result.blockchainHash}</div>
+              <div className="issue-hashBox">
+                <div className="issue-hashLabel">Blockchain Hash</div>
+                <div className="issue-hash">{result.blockchainHash}</div>
               </div>
               {result.documentAvailable && (
                 <button
                   type="button"
-                  className={s.btn}
+                  className="issue-btn"
                   style={{ marginTop: 14 }}
                   onClick={() => openCertificateDocument(result.id)}
                 >
@@ -216,8 +225,8 @@ export default function IssueCertificate() {
 function Row({ label, value, gold }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid var(--border)', gap: 8 }}>
-      <span style={{ fontSize: 12, color: 'var(--muted)' }}>{label}</span>
-      <span style={{ fontSize: 13, fontWeight: 500, color: gold ? 'var(--gold2)' : 'var(--text)', textAlign: 'right' }}>{value}</span>
+      <span style={{ fontSize: 12, color: 'var(--text-3)' }}>{label}</span>
+      <span style={{ fontSize: 13, fontWeight: 500, color: gold ? 'var(--accent-2)' : 'var(--text)', textAlign: 'right' }}>{value}</span>
     </div>
   )
 }

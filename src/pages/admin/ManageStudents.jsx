@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { createStudent, deleteStudent, getStudents } from '../../api.js'
-import s from './ManageStudents.module.css'
 
 const INITIAL_FORM = {
   name: '',
@@ -67,14 +66,14 @@ export default function ManageStudents() {
   }
 
   return (
-    <div className={s.root}>
-      <div className={s.header}>
+    <div className="stud-root">
+      <div className="stud-header">
         <div>
           <h1>Manage Students</h1>
           <p>Create, review, and archive student portal accounts</p>
         </div>
         <button
-          className={s.addBtn}
+          className="stud-addBtn"
           onClick={() => {
             setShowForm(current => !current)
             setError('')
@@ -86,54 +85,54 @@ export default function ManageStudents() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className={s.form}>
-          <div className={s.formTitle}>Create Student Account</div>
+        <form onSubmit={handleCreate} className="stud-form">
+          <div className="stud-formTitle">Create Student Account</div>
 
-          <div className={s.formRow}>
-            <div className={s.field}>
+          <div className="stud-formRow">
+            <div className="stud-field">
               <label>Full Name *</label>
               <input type="text" required placeholder="e.g. Ravi Kumar" value={form.name} onChange={event => setField('name', event.target.value)} />
             </div>
-            <div className={s.field}>
+            <div className="stud-field">
               <label>Email *</label>
               <input type="email" required placeholder="student@university.edu" value={form.email} onChange={event => setField('email', event.target.value)} />
             </div>
-            <div className={s.field}>
+            <div className="stud-field">
               <label>Password *</label>
               <input type="password" required placeholder="Min 8 characters with uppercase, lowercase, number" minLength={8} value={form.password} onChange={event => setField('password', event.target.value)} />
             </div>
           </div>
 
-          <div className={s.formRow}>
-            <div className={s.field}>
+          <div className="stud-formRow">
+            <div className="stud-field">
               <label>Department</label>
               <input type="text" placeholder="e.g. Computer Science" value={form.department} onChange={event => setField('department', event.target.value)} />
             </div>
-            <div className={s.field}>
+            <div className="stud-field">
               <label>Batch</label>
               <input type="text" placeholder="e.g. 2022-2026" value={form.batch} onChange={event => setField('batch', event.target.value)} />
             </div>
-            <div className={s.field}>
+            <div className="stud-field">
               <label>Roll Number</label>
               <input type="text" placeholder="Optional institutional roll number" value={form.rollNumber} onChange={event => setField('rollNumber', event.target.value)} />
             </div>
           </div>
 
-          <p className={s.formNote}>
+          <p className="stud-formNote">
             A unique student ID is generated automatically. Share the issued ID and password with the student after account creation.
           </p>
 
-          {error && <p className={s.error}>Error: {error}</p>}
+          {error && <p className="stud-error">Error: {error}</p>}
 
-          <button type="submit" className={s.saveBtn} disabled={saving}>
+          <button type="submit" className="stud-saveBtn" disabled={saving}>
             {saving ? <><span className="spinner" /> Creating account...</> : 'Create Account'}
           </button>
         </form>
       )}
 
       {success && (
-        <div className={s.created}>
-          <span className={s.createdIcon}>OK</span>
+        <div className="stud-created">
+          <span className="stud-createdIcon">OK</span>
           <div>
             <strong>Account created.</strong> Student ID: <code>{success.id}</code>
           </div>
@@ -141,13 +140,13 @@ export default function ManageStudents() {
         </div>
       )}
 
-      <div className={s.tableWrap}>
+      <div className="stud-tableWrap">
         {loading ? (
-          <div className={s.empty}><span className="spinner" /></div>
+          <div className="stud-empty"><span className="spinner" /></div>
         ) : students.length === 0 ? (
-          <div className={s.empty}>No students yet. Create one above.</div>
+          <div className="stud-empty">No students yet. Create one above.</div>
         ) : (
-          <table className={s.table}>
+          <table className="stud-table">
             <thead>
               <tr>
                 <th>Student ID</th>
@@ -161,11 +160,11 @@ export default function ManageStudents() {
             <tbody>
               {students.map(student => (
                 <tr key={student.id}>
-                  <td><code className={s.id}>{student.id}</code></td>
+                  <td><code className="stud-id">{student.id}</code></td>
                   <td>
                     {student.name}
                     <br />
-                    <span className={s.email}>{student.email}</span>
+                    <span className="stud-email">{student.email}</span>
                   </td>
                   <td>{student.department || 'General'}</td>
                   <td>
@@ -173,10 +172,10 @@ export default function ManageStudents() {
                       {student.status === 'active' ? 'Active' : 'Archived'}
                     </span>
                   </td>
-                  <td className={s.date}>{new Date(student.createdAt).toLocaleDateString()}</td>
+                  <td className="stud-date">{new Date(student.createdAt).toLocaleDateString()}</td>
                   <td>
                     <button
-                      className={s.delBtn}
+                      className="stud-delBtn"
                       onClick={() => handleArchive(student.id)}
                       disabled={student.status !== 'active' || archiving === student.id}
                     >
