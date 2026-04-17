@@ -561,6 +561,51 @@ tr:hover td {
 .stud-delBtn:hover { background: rgba(239, 83, 80, 0.1); }
 .stud-delBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.stud-actions { display: flex; gap: 6px; align-items: center; }
+
+.stud-expandBtn {
+  background: none; color: var(--accent); font-size: 12px; font-weight: 500;
+  padding: 4px 10px; border-radius: var(--radius-sm);
+  border: 1px solid var(--accent); cursor: pointer; transition: all 0.15s;
+}
+.stud-expandBtn:hover { background: var(--accent); color: white; }
+
+.stud-expandRow > td { padding: 0; }
+.stud-expandBody {
+  background: var(--surface-2); border-top: 1px solid var(--border);
+  padding: 20px 24px; display: flex; flex-direction: column; gap: 20px;
+}
+.stud-expandSection { display: flex; flex-direction: column; gap: 12px; }
+.stud-expandSectionTitle {
+  font-size: 13px; font-weight: 600; color: var(--text-2);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 12px;
+}
+.stud-issuedBadge {
+  font-size: 11px; font-weight: 500; color: #276749;
+  background: #c6f6d5; padding: 2px 8px; border-radius: 20px;
+  text-transform: none; letter-spacing: 0;
+}
+.stud-noCerts { font-size: 13px; color: var(--text-3); }
+.stud-certsTable { margin: 0; }
+
+.stud-issueToggleBtn {
+  align-self: flex-start; background: none; border: 1px dashed var(--accent);
+  color: var(--accent); font-size: 13px; font-weight: 500;
+  padding: 6px 14px; border-radius: var(--radius-sm); cursor: pointer;
+  transition: all 0.15s;
+}
+.stud-issueToggleBtn:hover { background: var(--accent); color: white; }
+
+.stud-issueForm { display: flex; flex-direction: column; gap: 12px; padding-top: 4px; }
+.stud-issueToggleRow { display: flex; gap: 8px; }
+.stud-issueTypeBtn {
+  flex: 1; padding: 7px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); font-size: 13px; cursor: pointer;
+  transition: all 0.15s;
+}
+.stud-issueRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
 /* ==========================================================================
    Issue Certificate (from IssueCertificate.module.css)
    ========================================================================== */
