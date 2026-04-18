@@ -5,7 +5,9 @@
       "Bash(npm ls:*)",
       "Bash(node -c src/main.jsx)",
       "Bash(ipconfig)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "WebSearch",
+      "Bash(npm install *)"
     ]
   }
 }

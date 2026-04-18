@@ -1,11 +1,18 @@
 import fs from 'node:fs/promises';
 import bcryptjs from 'bcryptjs';
+import { MongoClient } from 'mongodb';
 import { config } from '../config.js';
 
 const { hashSync } = bcryptjs;
 
 let database = null;
 let writeQueue = Promise.resolve();
+
+// MongoDB state
+let mongoCollection = null;
+const MONGO_DOC_ID = 'main';
+
+// ─── Seed data ────────────────────────────────────────────────────────────────
 
 function createSeedUsers() {
   const createdAt = new Date().toISOString();
@@ -66,15 +73,32 @@ function createDefaultState() {
   };
 }
 
-async function writeDatabase(nextDatabase) {
+// ─── Write helpers ─────────────────────────────────────────────────────────────
+
+async function writeDatabaseMongo(nextDatabase) {
+  database = nextDatabase;
+  await mongoCollection.replaceOne(
+    { _id: MONGO_DOC_ID },
+    { _id: MONGO_DOC_ID, ...nextDatabase },
+    { upsert: true },
+  );
+}
+
+async function writeDatabaseFile(nextDatabase) {
   database = nextDatabase;
   try {
     await fs.writeFile(config.databasePath, JSON.stringify(nextDatabase, null, 2));
   } catch (err) {
-    console.error(`[database] Failed to persist database to ${config.databasePath}:`, err);
+    console.error(`[database] Failed to persist to ${config.databasePath}:`, err);
     throw err;
   }
 }
+
+function writeDatabase(nextDatabase) {
+  return mongoCollection ? writeDatabaseMongo(nextDatabase) : writeDatabaseFile(nextDatabase);
+}
+
+// ─── Init ──────────────────────────────────────────────────────────────────────
 
 function ensureInitialized() {
   if (!database) {
@@ -82,22 +106,45 @@ function ensureInitialized() {
   }
 }
 
-export async function initializeDatabase() {
+async function initMongo(uri) {
+  console.log('[database] Connecting to MongoDB…');
+  const client = new MongoClient(uri);
+  await client.connect();
+  const db = client.db();
+  mongoCollection = db.collection('state');
+
+  const existing = await mongoCollection.findOne({ _id: MONGO_DOC_ID });
+  if (existing) {
+    const { _id, ...data } = existing;
+    database = data;
+    console.log('[database] Loaded state from MongoDB');
+  } else {
+    console.log('[database] No existing MongoDB state — seeding defaults');
+    await writeDatabaseMongo(createDefaultState());
+  }
+}
+
+async function initFile() {
   console.log(`[database] Initializing from ${config.databasePath}`);
   try {
     const raw = await fs.readFile(config.databasePath, 'utf8');
     database = JSON.parse(raw);
   } catch (error) {
-    if (error.code !== 'ENOENT') {
-      throw error;
-    }
-
-    const seedState = createDefaultState();
-    await writeDatabase(seedState);
+    if (error.code !== 'ENOENT') throw error;
+    await writeDatabaseFile(createDefaultState());
   }
+}
 
+export async function initializeDatabase() {
+  if (config.databaseUrl) {
+    await initMongo(config.databaseUrl);
+  } else {
+    await initFile();
+  }
   return getDatabaseSnapshot();
 }
+
+// ─── Public API (unchanged) ───────────────────────────────────────────────────
 
 export function getDatabase() {
   ensureInitialized();
@@ -132,7 +179,6 @@ export function updateDatabase(mutator) {
 
   writeQueue = run.catch((err) => {
     console.error('[database] Queue error:', err);
-    // Swallow error to keep queue alive for subsequent operations
   });
   return run;
 }
