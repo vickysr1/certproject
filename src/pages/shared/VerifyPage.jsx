@@ -112,10 +112,6 @@ export default function VerifyPage() {
           <h2>Blockchain Metadata</h2>
           <div className="vp-blockchainInfo">
             <div className="vp-infoRow">
-              <span>Transaction ID:</span>
-              <code className="vp-hash">{blockchainResult.transactionId}</code>
-            </div>
-            <div className="vp-infoRow">
               <span>Block Number:</span>
               <span className="vp-badge">{blockchainResult.blockNumber}</span>
             </div>
