@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises';
 import { Router } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
@@ -12,6 +11,7 @@ import {
   issueCertificate,
   uploadCertificate,
 } from '../services/certificateService.js';
+import { generateCertificatePdf } from '../services/certificatePdfService.js';
 import { verifyCertificateById, verifyUploadedCertificate } from '../services/verificationService.js';
 
 const router = Router();
@@ -131,11 +131,25 @@ router.get(
       throw createHttpError(403, 'You do not have access to this certificate document');
     }
 
-    const fileBuffer = await fs.readFile(certificate.storagePath);
+    let pdfBytes;
+
+    if (certificate.documentBase64) {
+      // Uploaded certificate — stored as base64 in DB
+      pdfBytes = Buffer.from(certificate.documentBase64, 'base64');
+    } else {
+      // System-issued certificate — generate on the fly
+      const block = {
+        index: certificate.blockNumber,
+        transactionId: certificate.transactionId,
+        hash: certificate.blockchainHash,
+      };
+      const pdf = await generateCertificatePdf(certificate, block);
+      pdfBytes = pdf.bytes;
+    }
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename="${certificate.documentFileName}"`);
-    res.send(fileBuffer);
+    res.send(pdfBytes);
   }),
 );
 

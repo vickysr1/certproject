@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import bcryptjs from 'bcryptjs';
 import { MongoClient } from 'mongodb';
+import { google } from 'googleapis';
 import { config } from '../config.js';
 
 const { hashSync } = bcryptjs;
@@ -11,6 +12,21 @@ let writeQueue = Promise.resolve();
 // MongoDB state
 let mongoCollection = null;
 const MONGO_DOC_ID = 'main';
+
+// Google Sheets state
+let sheetsClient = null;
+let sheetsSpreadsheetId = null;
+
+// Sheet names for each collection
+const SHEETS = {
+  users: 'Users',
+  certificates: 'Certificates',
+  documents: 'Documents',
+  blockchainMeta: 'BlockchainMeta',
+  blockchainChain: 'BlockchainChain',
+  verificationLogs: 'VerificationLogs',
+  counters: 'Counters',
+};
 
 // ─── Seed data ────────────────────────────────────────────────────────────────
 
@@ -94,7 +110,121 @@ async function writeDatabaseFile(nextDatabase) {
   }
 }
 
+// ─── Google Sheets helpers ────────────────────────────────────────────────────
+
+async function ensureSheets() {
+  const spreadsheet = await sheetsClient.spreadsheets.get({ spreadsheetId: sheetsSpreadsheetId });
+  const existingTitles = spreadsheet.data.sheets.map((s) => s.properties.title);
+  const needed = Object.values(SHEETS).filter((title) => !existingTitles.includes(title));
+
+  if (needed.length > 0) {
+    await sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: sheetsSpreadsheetId,
+      requestBody: {
+        requests: needed.map((title) => ({ addSheet: { properties: { title } } })),
+      },
+    });
+    console.log(`[sheets] Created sheets: ${needed.join(', ')}`);
+  }
+}
+
+async function readSheet(sheetName) {
+  try {
+    const res = await sheetsClient.spreadsheets.values.get({
+      spreadsheetId: sheetsSpreadsheetId,
+      range: `${sheetName}!A:B`,
+    });
+    return res.data.values || [];
+  } catch {
+    return [];
+  }
+}
+
+async function clearAndWriteSheet(sheetName, rows) {
+  await sheetsClient.spreadsheets.values.clear({
+    spreadsheetId: sheetsSpreadsheetId,
+    range: `${sheetName}!A:Z`,
+  });
+
+  if (rows.length > 0) {
+    await sheetsClient.spreadsheets.values.update({
+      spreadsheetId: sheetsSpreadsheetId,
+      range: `${sheetName}!A1`,
+      valueInputOption: 'RAW',
+      requestBody: { values: rows },
+    });
+  }
+}
+
+async function readFromSheets() {
+  const [usersRows, certsRows, docsRows, metaRows, chainRows, logsRows, countersRows] = await Promise.all([
+    readSheet(SHEETS.users),
+    readSheet(SHEETS.certificates),
+    readSheet(SHEETS.documents),
+    readSheet(SHEETS.blockchainMeta),
+    readSheet(SHEETS.blockchainChain),
+    readSheet(SHEETS.verificationLogs),
+    readSheet(SHEETS.counters),
+  ]);
+
+  if (usersRows.length === 0 && certsRows.length === 0) {
+    return null; // No data yet
+  }
+
+  // Build documents map for merging base64 back into certs
+  const docsMap = {};
+  for (const [certId, base64] of docsRows) {
+    if (certId) docsMap[certId] = base64;
+  }
+
+  const users = usersRows.map(([json]) => JSON.parse(json));
+  const certificates = certsRows.map(([json]) => {
+    const cert = JSON.parse(json);
+    if (docsMap[cert.id]) cert.documentBase64 = docsMap[cert.id];
+    return cert;
+  });
+  const verificationLogs = logsRows.map(([json]) => JSON.parse(json));
+  const blockchainChain = chainRows.map(([json]) => JSON.parse(json));
+  const blockchainMeta = metaRows[0] ? JSON.parse(metaRows[0][0]) : { network: 'cert-portal-private-ledger', validator: 'CertPortal-Ledger-Node-1', lastValidatedAt: null };
+  const counters = countersRows[0] ? JSON.parse(countersRows[0][0]) : { studentSequence: 0, certificateSequence: 0 };
+
+  return {
+    users,
+    certificates,
+    verificationLogs,
+    blockchain: { ...blockchainMeta, chain: blockchainChain },
+    counters,
+  };
+}
+
+async function writeDatabaseSheets(nextDatabase) {
+  database = nextDatabase;
+
+  // Split documentBase64 out of certs into Documents sheet
+  const certRows = nextDatabase.certificates.map((cert) => {
+    const { documentBase64, ...rest } = cert;
+    return [JSON.stringify(rest)];
+  });
+
+  const docRows = nextDatabase.certificates
+    .filter((cert) => cert.documentBase64)
+    .map((cert) => [cert.id, cert.documentBase64]);
+
+  const { chain, ...blockchainMeta } = nextDatabase.blockchain;
+
+  await Promise.all([
+    clearAndWriteSheet(SHEETS.users, nextDatabase.users.map((u) => [JSON.stringify(u)])),
+    clearAndWriteSheet(SHEETS.certificates, certRows),
+    clearAndWriteSheet(SHEETS.documents, docRows),
+    clearAndWriteSheet(SHEETS.blockchainMeta, [[JSON.stringify(blockchainMeta)]]),
+    clearAndWriteSheet(SHEETS.blockchainChain, chain.map((b) => [JSON.stringify(b)])),
+    clearAndWriteSheet(SHEETS.verificationLogs, nextDatabase.verificationLogs.map((l) => [JSON.stringify(l)])),
+    clearAndWriteSheet(SHEETS.counters, [[JSON.stringify(nextDatabase.counters)]]),
+  ]);
+}
+
 function writeDatabase(nextDatabase) {
+  if (sheetsClient) return writeDatabaseSheets(nextDatabase);
   return mongoCollection ? writeDatabaseMongo(nextDatabase) : writeDatabaseFile(nextDatabase);
 }
 
@@ -124,6 +254,28 @@ async function initMongo(uri) {
   }
 }
 
+async function initGoogleSheets(spreadsheetId, serviceAccountJson) {
+  console.log('[database] Connecting to Google Sheets…');
+  const credentials = JSON.parse(serviceAccountJson);
+  const auth = new google.auth.GoogleAuth({
+    credentials,
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+  });
+  sheetsClient = google.sheets({ version: 'v4', auth: await auth.getClient() });
+  sheetsSpreadsheetId = spreadsheetId;
+
+  await ensureSheets();
+
+  const existing = await readFromSheets();
+  if (existing) {
+    database = existing;
+    console.log('[database] Loaded state from Google Sheets');
+  } else {
+    console.log('[database] No existing Sheets data — seeding defaults');
+    await writeDatabaseSheets(createDefaultState());
+  }
+}
+
 async function initFile() {
   console.log(`[database] Initializing from ${config.databasePath}`);
   try {
@@ -136,7 +288,9 @@ async function initFile() {
 }
 
 export async function initializeDatabase() {
-  if (config.databaseUrl) {
+  if (config.googleSheetsId && config.googleServiceAccount) {
+    await initGoogleSheets(config.googleSheetsId, config.googleServiceAccount);
+  } else if (config.databaseUrl) {
     await initMongo(config.databaseUrl);
   } else {
     await initFile();

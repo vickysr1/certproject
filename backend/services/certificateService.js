@@ -51,10 +51,6 @@ export function getCertificateDocument(certificateId) {
     throw createHttpError(404, 'Certificate not found');
   }
 
-  if (!certificate.storagePath) {
-    throw createHttpError(404, 'Certificate document is not available');
-  }
-
   return certificate;
 }
 
@@ -103,7 +99,6 @@ export async function issueCertificate(payload, issuer) {
       blockchainHash: block.hash,
       blockNumber: block.index,
       transactionId: block.transactionId,
-      storagePath: pdf.storagePath,
       documentFileName: pdf.fileName,
       documentSize: pdf.byteLength,
       documentFileHash: pdf.fileHash,
@@ -154,8 +149,8 @@ export async function uploadCertificate(payload, file, issuer) {
     certificate.documentHash = buildDocumentHash(certificate);
 
     const block = appendCertificateBlock(database, certificate);
-    
-    // Embed QR code into the uploaded file and save as PDF
+
+    // Embed QR code into the uploaded file and store bytes in DB
     const pdf = await embedQrCodeInUploadedFile(file, certificate.id);
 
     const storedCertificate = {
@@ -163,10 +158,10 @@ export async function uploadCertificate(payload, file, issuer) {
       blockchainHash: block.hash,
       blockNumber: block.index,
       transactionId: block.transactionId,
-      storagePath: pdf.storagePath,
       documentFileName: pdf.fileName,
       documentSize: pdf.byteLength,
       documentFileHash: pdf.fileHash,
+      documentBase64: Buffer.from(pdf.bytes).toString('base64'),
     };
 
     database.certificates.unshift(storedCertificate);

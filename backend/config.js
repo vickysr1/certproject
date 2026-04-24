@@ -44,6 +44,8 @@ export const config = {
   publicUrl: process.env.PUBLIC_URL || `http://${localIp}:3000`,
   databasePath: path.join(dataDir, 'database.json'),
   databaseUrl: process.env.DATABASE_URL,
+  googleSheetsId: process.env.GOOGLE_SHEETS_ID,
+  googleServiceAccount: process.env.GOOGLE_SERVICE_ACCOUNT_JSON,
   certificateStorageDir,
   uploadStorageDir,
   cnnModelPath: path.join(modelDir, 'certificate-cnn.json'),

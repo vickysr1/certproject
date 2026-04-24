@@ -1,5 +1,3 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import QRCode from 'qrcode';
 import { config } from '../config.js';
@@ -201,13 +199,10 @@ export async function generateCertificatePdf(certificate, block) {
 
   const bytes = await pdf.save();
   const fileName = `${certificate.id}.pdf`;
-  const storagePath = path.join(config.certificateStorageDir, fileName);
-
-  await fs.writeFile(storagePath, bytes);
 
   return {
     fileName,
-    storagePath,
+    bytes,
     byteLength: bytes.length,
     fileHash: sha256BytesHex(bytes),
   };
@@ -255,13 +250,10 @@ export async function embedQrCodeInUploadedFile(file, certificateId) {
 
   const bytes = await pdf.save();
   const fileName = `${certificateId}.pdf`;
-  const storagePath = path.join(config.certificateStorageDir, fileName);
-
-  await fs.writeFile(storagePath, bytes);
 
   return {
     fileName,
-    storagePath,
+    bytes,
     byteLength: bytes.length,
     fileHash: sha256BytesHex(bytes),
   };
