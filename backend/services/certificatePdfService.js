@@ -108,7 +108,6 @@ export async function generateCertificatePdf(certificate, block) {
     ['Roll Number', certificate.rollNumber || 'N/A'],
     ['Issued On', new Date(certificate.issuedAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })],
     ['Blockchain Block', String(block.index)],
-    ['Transaction ID', block.transactionId.slice(0, 22)],
   ];
 
   metadataRows.forEach(([label, value], rowIndex) => {
