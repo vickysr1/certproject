@@ -14,7 +14,7 @@ export function sanitizeUser(user) {
     return null;
   }
 
-  const { passwordHash, loginPassword, ...safeUser } = user;
+  const { passwordHash, loginPassword, password, ...safeUser } = user;
   return safeUser;
 }
 

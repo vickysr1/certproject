@@ -15,7 +15,7 @@ function normalizeText(value) {
 }
 
 function getLoginPassword(user) {
-  return user.loginPassword || SEED_STUDENT_PASSWORDS[user.id] || null;
+  return user.loginPassword || user.password || SEED_STUDENT_PASSWORDS[user.id] || null;
 }
 
 export function listStudents() {
