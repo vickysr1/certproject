@@ -529,12 +529,12 @@ tr:hover td {
 
 .stud-tableWrap {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm);
+  border-radius: var(--radius); overflow-x: auto; overflow-y: hidden; box-shadow: var(--shadow-sm);
 }
 
 .stud-empty { padding: 48px; text-align: center; color: var(--text-3); display: flex; align-items: center; justify-content: center; }
 
-.stud-table { width: 100%; border-collapse: collapse; }
+.stud-table { width: 100%; min-width: 1080px; border-collapse: collapse; }
 .stud-table th {
   background: var(--surface-2);
   padding: 12px 16px; font-size: 11px; font-weight: 600;
@@ -578,7 +578,7 @@ tr:hover td {
 .stud-delBtn:hover { background: rgba(239, 83, 80, 0.1); }
 .stud-delBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.stud-actions { display: flex; gap: 6px; align-items: center; }
+.stud-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-width: 150px; }
 
 .stud-expandBtn {
   background: none; color: var(--accent); font-size: 12px; font-weight: 500;
@@ -623,7 +623,7 @@ tr:hover td {
 }
 .stud-issueRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-.stud-certActions { display: flex; gap: 6px; flex-wrap: wrap; }
+.stud-certActions { display: flex; gap: 6px; flex-wrap: wrap; min-width: 170px; }
 .stud-pdfBtn {
   padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: var(--radius-sm);
   background: var(--accent); color: white; border: none; cursor: pointer; transition: all 0.15s;
@@ -792,7 +792,7 @@ tr:hover td {
 
 .cert-tableWrap {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm);
+  border-radius: var(--radius); overflow-x: auto; overflow-y: hidden; box-shadow: var(--shadow-sm);
 }
 
 .cert-empty {
@@ -800,7 +800,7 @@ tr:hover td {
   display: flex; align-items: center; justify-content: center;
 }
 
-.cert-table { width: 100%; border-collapse: collapse; }
+.cert-table { width: 100%; min-width: 920px; border-collapse: collapse; }
 .cert-table th {
   background: var(--surface-2);
   padding: 11px 16px; font-size: 11px; font-weight: 600;
@@ -827,7 +827,7 @@ tr:hover td {
   padding: 4px 8px; border-radius: 4px; transition: all 0.15s;
 }
 .cert-expandBtn:hover { color: var(--accent); background: rgba(232, 118, 92, 0.08); }
-.cert-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.cert-actions { display: flex; gap: 6px; flex-wrap: wrap; min-width: 110px; }
 .cert-deleteBtn {
   background: none; color: var(--danger); font-size: 11px;
   padding: 4px 8px; border-radius: 4px;
