@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { createStudent, deleteStudent, getStudents, getCertificates, issueCertificate, uploadCertificate, openCertificateDocument, BASE_URL } from '../../api.js'
+import { createStudent, deleteStudent, getStudents, getCertificates, issueCertificate, openCertificateDocument, BASE_URL } from '../../api.js'
 
 const DEGREES = [
   'Bachelor of Engineering',
@@ -51,8 +51,6 @@ export default function ManageStudents() {
   const [studentCerts, setStudentCerts] = useState({})
   const [certsLoading, setCertsLoading] = useState(null)
   const [issueForm, setIssueForm] = useState({})
-  const [isUpload, setIsUpload] = useState({})
-  const [issueFile, setIssueFile] = useState({})
   const [issueLoading, setIssueLoading] = useState(null)
   const [issueError, setIssueError] = useState({})
   const [issueSuccess, setIssueSuccess] = useState({})
@@ -134,16 +132,9 @@ export default function ManageStudents() {
     setIssueLoading(studentId)
     try {
       const payload = { ...issueForm[studentId], studentId }
-      let certificate
-      if (isUpload[studentId]) {
-        if (!issueFile[studentId]) throw new Error('Please select a file to upload')
-        certificate = await uploadCertificate(payload, issueFile[studentId])
-      } else {
-        certificate = await issueCertificate(payload)
-      }
+      const certificate = await issueCertificate(payload)
       setIssueSuccess(prev => ({ ...prev, [studentId]: certificate }))
       setIssueForm(prev => ({ ...prev, [studentId]: { ...INITIAL_ISSUE_FORM } }))
-      setIssueFile(prev => ({ ...prev, [studentId]: null }))
       setShowIssueForm(prev => ({ ...prev, [studentId]: false }))
       // refresh certs for this student
       const all = await getCertificates()
@@ -324,20 +315,6 @@ export default function ManageStudents() {
 
                             {showIssueForm[student.id] && (
                               <form className="stud-issueForm" onSubmit={e => handleIssue(e, student.id)}>
-                                <div className="stud-issueToggleRow">
-                                  <button
-                                    type="button"
-                                    className="stud-issueTypeBtn"
-                                    style={{ background: !isUpload[student.id] ? 'var(--accent)' : 'var(--surface-2)', color: !isUpload[student.id] ? 'white' : 'var(--text-2)' }}
-                                    onClick={() => setIsUpload(prev => ({ ...prev, [student.id]: false }))}
-                                  >Issue New</button>
-                                  <button
-                                    type="button"
-                                    className="stud-issueTypeBtn"
-                                    style={{ background: isUpload[student.id] ? 'var(--accent)' : 'var(--surface-2)', color: isUpload[student.id] ? 'white' : 'var(--text-2)' }}
-                                    onClick={() => setIsUpload(prev => ({ ...prev, [student.id]: true }))}
-                                  >Upload Existing</button>
-                                </div>
                                 <div className="stud-issueRow">
                                   <div className="stud-field">
                                     <label>Degree / Programme *</label>
@@ -368,15 +345,9 @@ export default function ManageStudents() {
                                   <label>Issuing Institution *</label>
                                   <input type="text" required value={issueForm[student.id]?.institution || ''} onChange={e => setIssueField(student.id, 'institution', e.target.value)} />
                                 </div>
-                                {isUpload[student.id] && (
-                                  <div className="stud-field">
-                                    <label>Certificate File (PDF or Image) *</label>
-                                    <input type="file" required accept="application/pdf,image/*" onChange={e => setIssueFile(prev => ({ ...prev, [student.id]: e.target.files[0] }))} />
-                                  </div>
-                                )}
                                 {issueError[student.id] && <p className="stud-error">Error: {issueError[student.id]}</p>}
                                 <button type="submit" className="stud-saveBtn" disabled={issueLoading === student.id}>
-                                  {issueLoading === student.id ? <><span className="spinner" /> Registering...</> : (isUpload[student.id] ? 'Upload and Register' : 'Issue Certificate')}
+                                  {issueLoading === student.id ? <><span className="spinner" /> Registering...</> : 'Issue Certificate'}
                                 </button>
                               </form>
                             )}
