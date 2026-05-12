@@ -463,7 +463,7 @@ tr:hover td {
 /* ==========================================================================
    Manage Students (from ManageStudents.module.css)
    ========================================================================== */
-.stud-root { padding: 36px 40px; max-width: 900px; animation: fadeUp 0.35s ease; }
+.stud-root { padding: 36px 40px; max-width: 1280px; animation: fadeUp 0.35s ease; }
 .stud-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
 .stud-header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
 .stud-header p  { color: var(--text-3); font-size: 14px; }
