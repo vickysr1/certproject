@@ -54,6 +54,19 @@ export function getCertificateDocument(certificateId) {
   return certificate;
 }
 
+export async function deleteCertificate(certificateId) {
+  return updateDatabase(async (database) => {
+    const index = database.certificates.findIndex((certificate) => certificate.id === certificateId);
+
+    if (index === -1) {
+      throw createHttpError(404, 'Certificate not found');
+    }
+
+    const [removed] = database.certificates.splice(index, 1);
+    return sanitizeCertificate(removed);
+  });
+}
+
 export async function issueCertificate(payload, issuer) {
   const issuedAt = new Date();
 

@@ -97,6 +97,13 @@ export async function getCertificates(studentId) {
   })
 }
 
+export async function deleteCertificate(certificateId) {
+  return request({
+    url: `/certificates/${encodeURIComponent(certificateId)}`,
+    method: 'delete',
+  })
+}
+
 export async function issueCertificate(data) {
   return request({
     url: '/certificates/issue',

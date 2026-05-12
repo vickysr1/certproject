@@ -6,6 +6,7 @@ import { createHttpError } from '../lib/http.js';
 import { validate } from '../lib/validate.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import {
+  deleteCertificate,
   getCertificateDocument,
   listCertificates,
   issueCertificate,
@@ -83,6 +84,19 @@ router.post(
     const payload = validate(issueCertificateSchema, req.body);
     const certificate = await uploadCertificate(payload, req.file, req.user);
     res.status(201).json(certificate);
+  }),
+);
+
+router.delete(
+  '/:certificateId',
+  authenticate,
+  requireRole('admin'),
+  asyncHandler(async (req, res) => {
+    const certificate = await deleteCertificate(req.params.certificateId);
+    res.json({
+      success: true,
+      certificate,
+    });
   }),
 );
 

@@ -5,8 +5,17 @@ import { nextStudentId } from '../lib/ids.js';
 
 const { hashSync } = bcryptjs;
 
+const SEED_STUDENT_PASSWORDS = {
+  student01: 'student123',
+  student02: 'student123',
+};
+
 function normalizeText(value) {
   return value.trim().replace(/\s+/g, ' ');
+}
+
+function getLoginPassword(user) {
+  return user.loginPassword || SEED_STUDENT_PASSWORDS[user.id] || null;
 }
 
 export function listStudents() {
@@ -14,7 +23,10 @@ export function listStudents() {
     .users
     .filter((user) => user.role === 'student')
     .sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt))
-    .map(sanitizeUser);
+    .map((user) => ({
+      ...sanitizeUser(user),
+      loginPassword: getLoginPassword(user),
+    }));
 }
 
 export async function createStudent(payload) {
@@ -33,6 +45,7 @@ export async function createStudent(payload) {
     const student = {
       id: userId || nextStudentId(database),
       passwordHash: hashSync(payload.password, 10),
+      loginPassword: payload.password,
       role: 'student',
       status: 'active',
       name: normalizeText(payload.name),

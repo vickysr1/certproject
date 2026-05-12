@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { createStudent, deleteStudent, getStudents, getCertificates, issueCertificate, openCertificateDocument, BASE_URL } from '../../api.js'
+import { createStudent, deleteCertificate, deleteStudent, getStudents, getCertificates, issueCertificate, openCertificateDocument, BASE_URL } from '../../api.js'
 
 const DEGREES = [
   'Bachelor of Engineering',
@@ -55,6 +55,7 @@ export default function ManageStudents() {
   const [issueError, setIssueError] = useState({})
   const [issueSuccess, setIssueSuccess] = useState({})
   const [showIssueForm, setShowIssueForm] = useState({})
+  const [deletingCert, setDeletingCert] = useState(null)
   const [qrModal, setQrModal] = useState(null)
 
   const load = () => getStudents().then(items => {
@@ -146,6 +147,22 @@ export default function ManageStudents() {
     }
   }
 
+  async function handleDeleteCertificate(studentId, certificateId) {
+    if (!window.confirm(`Delete certificate ${certificateId}? This removes the certificate record from the portal.`)) return
+
+    setDeletingCert(certificateId)
+    try {
+      await deleteCertificate(certificateId)
+      setStudentCerts(prev => ({
+        ...prev,
+        [studentId]: (prev[studentId] || []).filter(cert => cert.id !== certificateId),
+      }))
+      setIssueSuccess(prev => prev[studentId]?.id === certificateId ? ({ ...prev, [studentId]: null }) : prev)
+    } finally {
+      setDeletingCert(null)
+    }
+  }
+
   return (
     <div className="stud-root">
       <div className="stud-header">
@@ -221,6 +238,8 @@ export default function ManageStudents() {
               <tr>
                 <th>Student ID</th>
                 <th>Name</th>
+                <th>Login User ID</th>
+                <th>Password</th>
                 <th>Department</th>
                 <th>Status</th>
                 <th>Created</th>
@@ -235,6 +254,12 @@ export default function ManageStudents() {
                     <td>
                       {student.name}
                       {student.email && <><br /><span className="stud-email">{student.email}</span></>}
+                    </td>
+                    <td><code className="stud-id">{student.id}</code></td>
+                    <td>
+                      {student.loginPassword
+                        ? <code className="stud-passwordValue">{student.loginPassword}</code>
+                        : <span className="stud-passwordStatus">Not stored</span>}
                     </td>
                     <td>{student.department || 'General'}</td>
                     <td>
@@ -258,7 +283,7 @@ export default function ManageStudents() {
                   </tr>
                   {expanded === student.id && (
                     <tr className="stud-expandRow">
-                      <td colSpan={6}>
+                      <td colSpan={8}>
                         <div className="stud-expandBody">
                           <div className="stud-expandSection">
                             <div className="stud-expandSectionTitle">
@@ -298,6 +323,13 @@ export default function ManageStudents() {
                                           </button>
                                           <button className="stud-qrBtn" onClick={() => setQrModal(cert.id)}>
                                             QR
+                                          </button>
+                                          <button
+                                            className="stud-certDeleteBtn"
+                                            onClick={() => handleDeleteCertificate(student.id, cert.id)}
+                                            disabled={deletingCert === cert.id}
+                                          >
+                                            {deletingCert === cert.id ? 'Deleting...' : 'Delete'}
                                           </button>
                                         </div>
                                       </td>

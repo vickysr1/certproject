@@ -551,6 +551,23 @@ tr:hover td {
 .stud-id { background: var(--surface-2); padding: 2px 8px; border-radius: 4px; color: var(--accent); font-size: 12px; }
 .stud-email { color: var(--text-3); }
 .stud-date  { color: var(--text-3); font-size: 12px; }
+.stud-passwordStatus {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(83, 105, 118, 0.1);
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 500;
+}
+.stud-passwordValue {
+  background: var(--surface-2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 12px;
+}
 
 .stud-delBtn {
   background: none; color: var(--danger); font-size: 12px; font-weight: 500;
@@ -606,7 +623,7 @@ tr:hover td {
 }
 .stud-issueRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-.stud-certActions { display: flex; gap: 6px; }
+.stud-certActions { display: flex; gap: 6px; flex-wrap: wrap; }
 .stud-pdfBtn {
   padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: var(--radius-sm);
   background: var(--accent); color: white; border: none; cursor: pointer; transition: all 0.15s;
@@ -617,6 +634,13 @@ tr:hover td {
   background: none; color: var(--accent); border: 1.5px solid var(--accent); cursor: pointer; transition: all 0.15s;
 }
 .stud-qrBtn:hover { background: var(--accent); color: white; }
+.stud-certDeleteBtn {
+  padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: var(--radius-sm);
+  background: none; color: var(--danger); border: 1.5px solid rgba(239, 83, 80, 0.35);
+  cursor: pointer; transition: all 0.15s;
+}
+.stud-certDeleteBtn:hover { background: rgba(239, 83, 80, 0.1); }
+.stud-certDeleteBtn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .stud-qrOverlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1000;
@@ -803,6 +827,15 @@ tr:hover td {
   padding: 4px 8px; border-radius: 4px; transition: all 0.15s;
 }
 .cert-expandBtn:hover { color: var(--accent); background: rgba(232, 118, 92, 0.08); }
+.cert-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.cert-deleteBtn {
+  background: none; color: var(--danger); font-size: 11px;
+  padding: 4px 8px; border-radius: 4px;
+  border: 1px solid rgba(239, 83, 80, 0.35);
+  transition: all 0.15s;
+}
+.cert-deleteBtn:hover { background: rgba(239, 83, 80, 0.1); }
+.cert-deleteBtn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .cert-expandedRow td { background: rgba(232, 118, 92, 0.04); border-bottom: none !important; }
 

@@ -47,6 +47,7 @@ function createSeedUsers() {
     {
       id: 'student01',
       passwordHash: hashSync('student123', 10),
+      loginPassword: 'student123',
       role: 'student',
       status: 'active',
       name: 'Arjun Sharma',
@@ -59,6 +60,7 @@ function createSeedUsers() {
     {
       id: 'student02',
       passwordHash: hashSync('student123', 10),
+      loginPassword: 'student123',
       role: 'student',
       status: 'active',
       name: 'Priya Menon',

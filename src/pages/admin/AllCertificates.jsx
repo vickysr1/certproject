@@ -1,11 +1,12 @@
 import { Fragment, useEffect, useState } from 'react'
-import { getCertificates, openCertificateDocument } from '../../api.js'
+import { deleteCertificate, getCertificates, openCertificateDocument } from '../../api.js'
 
 export default function AllCertificates() {
   const [certificates, setCertificates] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState(null)
+  const [deleting, setDeleting] = useState(null)
 
   useEffect(() => {
     getCertificates().then(items => {
@@ -20,6 +21,19 @@ export default function AllCertificates() {
     certificate.degree.toLowerCase().includes(search.toLowerCase()) ||
     certificate.branch.toLowerCase().includes(search.toLowerCase()),
   )
+
+  async function handleDelete(certificateId) {
+    if (!window.confirm(`Delete certificate ${certificateId}? This removes the certificate record from the portal.`)) return
+
+    setDeleting(certificateId)
+    try {
+      await deleteCertificate(certificateId)
+      setCertificates(current => current.filter(certificate => certificate.id !== certificateId))
+      setExpanded(current => current === certificateId ? null : current)
+    } finally {
+      setDeleting(null)
+    }
+  }
 
   return (
     <div className="cert-root">
@@ -60,9 +74,18 @@ export default function AllCertificates() {
                     <td className="cert-grade">{certificate.grade}</td>
                     <td><span className="badge badge-green">Issued</span></td>
                     <td>
-                      <button className="cert-expandBtn" onClick={() => setExpanded(expanded === certificate.id ? null : certificate.id)}>
-                        {expanded === certificate.id ? 'Hide' : 'View'}
-                      </button>
+                      <div className="cert-actions">
+                        <button className="cert-expandBtn" onClick={() => setExpanded(expanded === certificate.id ? null : certificate.id)}>
+                          {expanded === certificate.id ? 'Hide' : 'View'}
+                        </button>
+                        <button
+                          className="cert-deleteBtn"
+                          onClick={() => handleDelete(certificate.id)}
+                          disabled={deleting === certificate.id}
+                        >
+                          {deleting === certificate.id ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                   {expanded === certificate.id && (
