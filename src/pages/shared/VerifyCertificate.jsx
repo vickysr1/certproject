@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { verifyCertificate, verifyUploadedCertificate } from '../../api.js'
+import { verifyUploadedCertificate } from '../../api.js'
 
 function isPdfFile(file) {
   return file?.type === 'application/pdf' || file?.name?.toLowerCase().endsWith('.pdf')
@@ -10,29 +10,11 @@ function isSupportedUpload(file) {
 }
 
 export default function VerifyCertificate() {
-  const [tab, setTab] = useState('id')
-  const [certId, setCertId] = useState('')
   const [file, setFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
   const fileRef = useRef()
-
-  async function handleVerifyById(event) {
-    event.preventDefault()
-    setError('')
-    setResult(null)
-    setLoading(true)
-
-    try {
-      const response = await verifyCertificate(certId.trim())
-      setResult({ mode: 'id', ...response })
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   async function handleVerifyFile(event) {
     event.preventDefault()
@@ -73,75 +55,46 @@ export default function VerifyCertificate() {
     <div className="verify-root">
       <div className="verify-header">
         <h1>Verify Certificate</h1>
-        <p>Run blockchain lookup, official PDF validation, and AI-based image forgery checks</p>
-      </div>
-
-      <div className="verify-tabs">
-        <button className={`verify-tab ${tab === 'id' ? 'verify-tab active' : ''}`} onClick={() => { setTab('id'); setResult(null); setError('') }}>
-          Verify by Certificate ID
-        </button>
-        <button className={`verify-tab ${tab === 'upload' ? 'verify-tab active' : ''}`} onClick={() => { setTab('upload'); setResult(null); setError('') }}>
-          Upload PDF or Image
-        </button>
+        <p>Upload a certificate PDF or image for official validation and AI-based forgery checks</p>
       </div>
 
       <div className="verify-body">
-        {tab === 'id' ? (
-          <form onSubmit={handleVerifyById} className="verify-form">
-            <div className="verify-field">
-              <label>Certificate ID</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. CERT-2026-0001"
-                value={certId}
-                onChange={event => setCertId(event.target.value)}
-              />
-              <span className="verify-fieldHint">Use the certificate ID to validate the blockchain record directly.</span>
-            </div>
-            {error && <p className="verify-error">Error: {error}</p>}
-            <button type="submit" className="verify-btn" disabled={loading}>
-              {loading ? <><span className="spinner" /> Checking ledger...</> : 'Verify on Blockchain'}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyFile} className="verify-form">
-            <div
-              className={`verify-dropzone ${file ? 'verify-dropzone hasFile' : ''}`}
-              onDrop={handleDrop}
-              onDragOver={event => event.preventDefault()}
-              onClick={() => fileRef.current.click()}
-            >
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*,.pdf,application/pdf"
-                style={{ display: 'none' }}
-                onChange={event => setFile(event.target.files[0])}
-              />
-              {file ? (
-                <>
-                  <span className="verify-fileIcon">{uploadLabel}</span>
-                  <span className="verify-fileName">{file.name}</span>
-                  <span className="verify-fileSize">{(file.size / 1024).toFixed(1)} KB</span>
-                  <button type="button" className="verify-clearFile" onClick={event => { event.stopPropagation(); setFile(null) }}>
-                    Remove
-                  </button>
-                </>
-              ) : (
-                <>
-                  <span className="verify-dropIcon">UP</span>
-                  <span className="verify-dropText">Drag and drop a certificate PDF or image, or click to browse</span>
-                  <span className="verify-dropSub">PDF, PNG, JPG, JPEG, and WEBP are supported</span>
-                </>
-              )}
-            </div>
-            {error && <p className="verify-error">Error: {error}</p>}
-            <button type="submit" className="verify-btn" disabled={loading || !file}>
-              {loading ? <><span className="spinner" /> {uploadButtonLabel}</> : uploadButtonLabel}
-            </button>
-          </form>
-        )}
+        <form onSubmit={handleVerifyFile} className="verify-form">
+          <div
+            className={`verify-dropzone ${file ? 'verify-dropzone hasFile' : ''}`}
+            onDrop={handleDrop}
+            onDragOver={event => event.preventDefault()}
+            onClick={() => fileRef.current.click()}
+          >
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*,.pdf,application/pdf"
+              style={{ display: 'none' }}
+              onChange={event => setFile(event.target.files[0])}
+            />
+            {file ? (
+              <>
+                <span className="verify-fileIcon">{uploadLabel}</span>
+                <span className="verify-fileName">{file.name}</span>
+                <span className="verify-fileSize">{(file.size / 1024).toFixed(1)} KB</span>
+                <button type="button" className="verify-clearFile" onClick={event => { event.stopPropagation(); setFile(null) }}>
+                  Remove
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="verify-dropIcon">UP</span>
+                <span className="verify-dropText">Drag and drop a certificate PDF or image, or click to browse</span>
+                <span className="verify-dropSub">PDF, PNG, JPG, JPEG, and WEBP are supported</span>
+              </>
+            )}
+          </div>
+          {error && <p className="verify-error">Error: {error}</p>}
+          <button type="submit" className="verify-btn" disabled={loading || !file}>
+            {loading ? <><span className="spinner" /> {uploadButtonLabel}</> : uploadButtonLabel}
+          </button>
+        </form>
 
         {result && <ResultPanel result={result} />}
       </div>
@@ -150,60 +103,6 @@ export default function VerifyCertificate() {
 }
 
 function ResultPanel({ result }) {
-  if (result.mode === 'id') {
-    if (!result.valid) {
-      return (
-        <div className="verify-result verify-invalid">
-          <div className="verify-resultIcon">X</div>
-          <div className="verify-resultTitle">Certificate Not Found</div>
-          <p className="verify-resultSub">{result.reason}</p>
-        </div>
-      )
-    }
-
-    const certificate = result.cert
-    const ai = result.aiResult
-    const blockchain = result.blockchainResult
-
-    return (
-      <div className="verify-result verify-valid">
-        <div className="verify-resultTop">
-          <div className="verify-resultIcon">OK</div>
-          <div>
-            <div className="verify-resultTitle">Certificate Verified</div>
-            <div className="verify-resultSub">Ledger fingerprint matched the stored issuance block.</div>
-          </div>
-        </div>
-
-        <div className="verify-panels">
-          <div className="verify-panel">
-            <div className="verify-panelTitle">Certificate Details</div>
-            <Row label="ID" value={certificate.id} mono />
-            <Row label="Student" value={certificate.studentName} />
-            <Row label="Degree" value={certificate.degree} />
-            <Row label="Branch" value={certificate.branch} />
-            <Row label="Grade" value={certificate.grade} />
-            <Row label="Year" value={certificate.year} />
-            <Row label="Institution" value={certificate.institution} />
-          </div>
-
-          <div className="verify-panel">
-            <div className="verify-panelTitle">Integrity Analysis</div>
-            <Meter label="Confidence" value={ai.confidence} color="var(--success)" />
-            <Meter label="Tamper Score" value={ai.tamperScore} color={parseFloat(ai.tamperScore) > 20 ? 'var(--danger)' : 'var(--accent-2)'} />
-
-            <div className="verify-panelTitle" style={{ marginTop: 16 }}>Blockchain Record</div>
-            <Row label="Block" value={blockchain.blockNumber} />
-            <Row label="Confirmed" value={blockchain.confirmed ? 'Yes' : 'No'} />
-            <Row label="Validator" value={blockchain.validator} />
-            <Row label="Timestamp" value={new Date(blockchain.timestamp).toLocaleString()} />
-            <Row label="Hash" value={certificate.blockchainHash.slice(0, 22) + '...'} mono />
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return <UploadResultPanel result={result} />
 }
 
