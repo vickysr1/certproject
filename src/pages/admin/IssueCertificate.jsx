@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { downloadCertificateDocument, getStudents, issueCertificate } from '../../api.js'
+import { downloadCertificateDocument, getStudents, issueCertificate, uploadCertificate } from '../../api.js'
 
 const DEGREES = [
   'Bachelor of Engineering',
@@ -23,6 +23,8 @@ const GRADES = [
 
 export default function IssueCertificate() {
   const [students, setStudents] = useState([])
+  const [mode, setMode] = useState('generate') // 'generate' or 'upload'
+  const [file, setFile] = useState(null)
   const [form, setForm] = useState({
     studentId: '',
     degree: '',
@@ -48,8 +50,17 @@ export default function IssueCertificate() {
     setLoading(true)
 
     try {
-      const certificate = await issueCertificate(form)
+      let certificate
+      if (mode === 'upload') {
+        if (!file) {
+          throw new Error('Please select a certificate file to upload.')
+        }
+        certificate = await uploadCertificate(form, file)
+      } else {
+        certificate = await issueCertificate(form)
+      }
       setResult(certificate)
+      setFile(null)
       setForm(current => ({ ...current, studentId: '', degree: '', branch: '', grade: '' }))
     } catch (err) {
       setError(err.message)
@@ -63,6 +74,23 @@ export default function IssueCertificate() {
       <div className="issue-header">
         <h1>Issue Certificate</h1>
         <p>Create a certificate record, PDF document, and blockchain entry in one flow</p>
+      </div>
+
+      <div className="issue-mode-selector">
+        <button
+          type="button"
+          className={`mode-tab ${mode === 'generate' ? 'active' : ''}`}
+          onClick={() => { setMode('generate'); setResult(null); setError(''); setFile(null); }}
+        >
+          Generate Certificate
+        </button>
+        <button
+          type="button"
+          className={`mode-tab ${mode === 'upload' ? 'active' : ''}`}
+          onClick={() => { setMode('upload'); setResult(null); setError(''); }}
+        >
+          Upload Certificate File
+        </button>
       </div>
 
       <div className="issue-layout">
@@ -119,10 +147,36 @@ export default function IssueCertificate() {
             <input type="text" required value={form.institution} onChange={event => setField('institution', event.target.value)} />
           </div>
 
+          {mode === 'upload' && (
+            <>
+              <div className="issue-section">Document File</div>
+              <div className="issue-field">
+                <label>Select Certificate File (PDF or Image) *</label>
+                <div className="file-upload-container">
+                  <input
+                    type="file"
+                    accept="image/*,.pdf,application/pdf"
+                    required={mode === 'upload'}
+                    onChange={event => setFile(event.target.files[0])}
+                  />
+                  {file && (
+                    <span className="file-info-label">
+                      Selected: {file.name} ({(file.size / 1024).toFixed(1)} KB)
+                    </span>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
           {error && <p className="issue-error">Error: {error}</p>}
 
-          <button type="submit" className="issue-btn" disabled={loading}>
-            {loading ? <><span className="spinner" /> Registering on ledger...</> : 'Issue Certificate'}
+          <button type="submit" className="issue-btn" disabled={loading || (mode === 'upload' && !file)}>
+            {loading ? (
+              <><span className="spinner" /> {mode === 'upload' ? 'Anchoring & uploading...' : 'Registering on ledger...'}</>
+            ) : (
+              mode === 'upload' ? 'Upload & Register Certificate' : 'Issue Certificate'
+            )}
           </button>
         </form>
 

@@ -99,12 +99,11 @@ export async function generateCertificatePdf(certificate, block) {
     ['Student ID', certificate.studentId],
     ['Roll Number', certificate.rollNumber || 'N/A'],
     ['Issued On', new Date(certificate.issuedAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })],
-    ['Blockchain Block', String(block.index)],
   ];
 
   metadataRows.forEach(([label, value], rowIndex) => {
-    const x = rowIndex < 3 ? 112 : 442;
-    const y = 212 - (rowIndex % 3) * 24;
+    const x = rowIndex < 2 ? 112 : 442;
+    const y = 204 - (rowIndex % 2) * 30;
 
     page.drawText(label, {
       x,

@@ -1228,3 +1228,62 @@ tr:hover td {
   .vp-header h1 { font-size: 1.5rem; }
   .vp-hash { width: 140px; }
 }
+
+/* Custom additions for Admin Issue Page Upload feature */
+.issue-mode-selector {
+  display: flex;
+  gap: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+  width: fit-content;
+  margin-bottom: 24px;
+}
+.mode-tab {
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-tab:hover {
+  color: var(--text);
+}
+.mode-tab.active {
+  background: var(--surface);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.file-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface-2);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  align-items: center;
+}
+.file-upload-container input[type="file"] {
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  width: 100%;
+  max-width: 320px;
+  font-size: 13px;
+  color: var(--text-2);
+  cursor: pointer;
+}
+.file-info-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-2);
+}
+

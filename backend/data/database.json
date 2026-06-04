@@ -117,7 +117,18 @@
       "documentFileHash": "0xe460579f4bd9fad569af92c75120f5d83bfeb69027dc6b149b772b80631cf893"
     }
   ],
-  "verificationLogs": [],
+  "verificationLogs": [
+    {
+      "id": "d12597a5-8466-4681-95b7-2b0305b08791",
+      "createdAt": "2026-06-04T05:51:57.885Z",
+      "mode": "upload",
+      "fileName": "CERT_UPLOADED_CERT-2026-0003.pdf",
+      "requestedBy": null,
+      "valid": true,
+      "authentic": true,
+      "confidence": "99.8"
+    }
+  ],
   "blockchain": {
     "network": "cert-portal-private-ledger",
     "validator": "CertPortal-Ledger-Node-1",
@@ -151,12 +162,22 @@
         "payloadHash": "0x30cd4ca366e8d4e9af010547aab700d29eb08ae795f20a417504f3962bd69f5e",
         "validator": "CertPortal-Ledger-Node-1",
         "hash": "0x1b640f6c0fad2bccd91edd002567f253ed9a4c4456f3075ebf2bf8b372c33a80"
+      },
+      {
+        "index": 3,
+        "timestamp": "2026-06-04T05:51:57.807Z",
+        "previousHash": "0x1b640f6c0fad2bccd91edd002567f253ed9a4c4456f3075ebf2bf8b372c33a80",
+        "transactionId": "0x62d9cbaf0508142340a1cc326a3402da22f4fd27a9ae1e015d4817d181f82612",
+        "certificateId": "CERT-2026-0003",
+        "payloadHash": "0x992e28f3f11679ec57e8be4f3df531cfcae255583d0d8794fdd5c62134e6db41",
+        "validator": "CertPortal-Ledger-Node-1",
+        "hash": "0x8acf7f7f8d2a21988b6fddd79fd8ed6479a0b48a45be6ab1b2db5ad2ff763040"
       }
     ],
     "lastValidatedAt": "2026-04-12T15:19:36.013Z"
   },
   "counters": {
     "studentSequence": 4,
-    "certificateSequence": 2
+    "certificateSequence": 3
   }
 }
