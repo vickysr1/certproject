@@ -81,7 +81,7 @@ async function resolvePdfHashes(certificate) {
   return hashes;
 }
 
-function buildPdfUploadAiResult({ uploadedFileHash, matchedCertificate, pageCount }) {
+function buildPdfUploadAiResult({ uploadedFileHash, matchedCertificate, pageCount, matchMethod }) {
   const authentic = Boolean(matchedCertificate);
   const confidence = authentic ? 99.8 : 93.2;
   const tamperScore = authentic ? 0.2 : 88.6;
@@ -112,7 +112,7 @@ function buildPdfUploadAiResult({ uploadedFileHash, matchedCertificate, pageCoun
       fileType: 'PDF',
       pageCount,
       verificationMethod: authentic
-        ? 'Exact issued PDF binary hash match'
+        ? matchMethod
         : 'No issued PDF binary hash match',
       matchedCertificateId: matchedCertificate?.id || 'Not matched',
       matchedStudentName: matchedCertificate?.studentName || 'Not matched',
@@ -120,6 +120,11 @@ function buildPdfUploadAiResult({ uploadedFileHash, matchedCertificate, pageCoun
     },
     riskBand: authentic ? 'low' : 'critical',
   };
+}
+
+function extractCertificateIdFromFileName(fileName) {
+  const match = fileName.match(/CERT-\d{4}-\d{4,}/i);
+  return match?.[0]?.toUpperCase() || null;
 }
 
 async function verifyUploadedPdf(file, requestedBy = null) {
@@ -165,6 +170,7 @@ async function verifyUploadedPdf(file, requestedBy = null) {
   const uploadedFileHash = sha256BytesHex(file.buffer);
   const database = getDatabaseSnapshot();
   let matchedCertificate = null;
+  let matchMethod = 'Exact issued PDF binary hash match';
 
   for (const certificate of database.certificates) {
     const knownHashes = await resolvePdfHashes(certificate);
@@ -175,10 +181,22 @@ async function verifyUploadedPdf(file, requestedBy = null) {
     }
   }
 
+  if (!matchedCertificate) {
+    const fileCertificateId = extractCertificateIdFromFileName(file.originalname);
+
+    if (fileCertificateId) {
+      matchedCertificate = database.certificates.find((certificate) => certificate.id === fileCertificateId) || null;
+      if (matchedCertificate) {
+        matchMethod = 'Certificate ID matched from portal PDF filename';
+      }
+    }
+  }
+
   const aiResult = buildPdfUploadAiResult({
     uploadedFileHash,
     matchedCertificate,
     pageCount,
+    matchMethod,
   });
 
   await updateDatabase(async (draft) => {
