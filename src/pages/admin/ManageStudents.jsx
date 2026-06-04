@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { createStudent, deleteCertificate, deleteStudent, getStudents, getCertificates, issueCertificate, openCertificateDocument, BASE_URL } from '../../api.js'
+import { createStudent, deleteCertificate, deleteStudent, downloadCertificateDocument, getStudents, getCertificates, issueCertificate, openCertificateDocument, BASE_URL } from '../../api.js'
 
 const DEGREES = [
   'Bachelor of Engineering',
@@ -320,6 +320,9 @@ export default function ManageStudents() {
                                         <div className="stud-certActions">
                                           <button className="stud-pdfBtn" onClick={() => openCertificateDocument(cert.id)}>
                                             PDF
+                                          </button>
+                                          <button className="stud-downloadBtn" onClick={() => downloadCertificateDocument(cert.id)}>
+                                            Download
                                           </button>
                                           <button className="stud-qrBtn" onClick={() => setQrModal(cert.id)}>
                                             QR

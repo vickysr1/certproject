@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getCertificates, getSession, openCertificateDocument, BASE_URL } from '../../api.js'
+import { downloadCertificateDocument, getCertificates, getSession, openCertificateDocument, BASE_URL } from '../../api.js'
 
 export default function MyCertificates() {
   const session = getSession()
@@ -77,6 +77,9 @@ export default function MyCertificates() {
                         </button>
                         <button className="mycert-actionBtn" onClick={() => openCertificateDocument(certificate.id)}>
                           Open PDF
+                        </button>
+                        <button className="mycert-actionBtn" onClick={() => downloadCertificateDocument(certificate.id)}>
+                          Download PDF
                         </button>
                       </div>
                     </div>

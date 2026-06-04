@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getStudents, issueCertificate, uploadCertificate, openCertificateDocument } from '../../api.js'
+import { downloadCertificateDocument, getStudents, issueCertificate } from '../../api.js'
 
 const DEGREES = [
   'Bachelor of Engineering',
@@ -31,8 +31,6 @@ export default function IssueCertificate() {
     year: new Date().getFullYear().toString(),
     grade: '',
   })
-  const [isUpload, setIsUpload] = useState(false)
-  const [file, setFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
@@ -50,16 +48,9 @@ export default function IssueCertificate() {
     setLoading(true)
 
     try {
-      let certificate
-      if (isUpload) {
-        if (!file) throw new Error('Please select a file to upload')
-        certificate = await uploadCertificate(form, file)
-      } else {
-        certificate = await issueCertificate(form)
-      }
+      const certificate = await issueCertificate(form)
       setResult(certificate)
       setForm(current => ({ ...current, studentId: '', degree: '', branch: '', grade: '' }))
-      setFile(null)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -70,35 +61,8 @@ export default function IssueCertificate() {
   return (
     <div className="issue-root">
       <div className="issue-header">
-        <h1>{isUpload ? 'Upload Certificate' : 'Issue Certificate'}</h1>
-        <p>{isUpload ? 'Register an existing certificate image or PDF on the blockchain' : 'Create a certificate record, PDF document, and blockchain entry in one flow'}</p>
-      </div>
-
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <button 
-          onClick={() => setIsUpload(false)} 
-          className="issue-btn"
-          style={{ 
-            padding: '8px 16px', 
-            background: !isUpload ? 'var(--accent)' : 'var(--surface-2)', 
-            color: !isUpload ? 'white' : 'var(--text-2)', 
-            flex: 1 
-          }}
-        >
-          Issue New
-        </button>
-        <button 
-          onClick={() => setIsUpload(true)} 
-          className="issue-btn"
-          style={{ 
-            padding: '8px 16px', 
-            background: isUpload ? 'var(--accent)' : 'var(--surface-2)', 
-            color: isUpload ? 'white' : 'var(--text-2)', 
-            flex: 1 
-          }}
-        >
-          Upload Existing
-        </button>
+        <h1>Issue Certificate</h1>
+        <p>Create a certificate record, PDF document, and blockchain entry in one flow</p>
       </div>
 
       <div className="issue-layout">
@@ -155,26 +119,10 @@ export default function IssueCertificate() {
             <input type="text" required value={form.institution} onChange={event => setField('institution', event.target.value)} />
           </div>
 
-          {isUpload && (
-            <div className="issue-field">
-              <label>Certificate File (PDF or Image) *</label>
-              <input 
-                type="file" 
-                required 
-                accept="application/pdf,image/*" 
-                onChange={event => setFile(event.target.files[0])}
-                style={{ paddingTop: 8 }}
-              />
-              <span className="issue-hint">This file will be hashed and registered on the ledger.</span>
-            </div>
-          )}
-
           {error && <p className="issue-error">Error: {error}</p>}
 
           <button type="submit" className="issue-btn" disabled={loading}>
-            {loading
-              ? <><span className="spinner" /> {isUpload ? 'Uploading and Registering...' : 'Registering on ledger...'}</>
-              : (isUpload ? 'Upload and Register' : 'Issue Certificate')}
+            {loading ? <><span className="spinner" /> Registering on ledger...</> : 'Issue Certificate'}
           </button>
         </form>
 
@@ -209,9 +157,9 @@ export default function IssueCertificate() {
                   type="button"
                   className="issue-btn"
                   style={{ marginTop: 14 }}
-                  onClick={() => openCertificateDocument(result.id)}
+                  onClick={() => downloadCertificateDocument(result.id)}
                 >
-                  Open PDF Certificate
+                  Download PDF Certificate
                 </button>
               )}
             </div>

@@ -6,6 +6,7 @@ import { sanitizeCertificate } from '../lib/http.js';
 import { sha256BytesHex } from '../lib/hash.js';
 import { findLedgerBlock, validateLedger } from './blockchainLedger.js';
 import { analyzeCertificateUpload } from './ai/forgeryAnalysisService.js';
+import { generateCertificatePdf } from './certificatePdfService.js';
 
 function buildIdVerificationAiResult(certificate, blockchainVerified) {
   const authentic = Boolean(blockchainVerified);
@@ -47,17 +48,37 @@ function fileLooksLikePdf(file) {
   return file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf');
 }
 
-async function resolveStoredPdfHash(certificate) {
+async function resolvePdfHashes(certificate) {
+  const hashes = new Set();
+
   if (certificate.documentFileHash) {
-    return certificate.documentFileHash;
+    hashes.add(certificate.documentFileHash);
   }
 
-  if (!certificate.storagePath) {
-    return null;
+  if (certificate.documentBase64) {
+    hashes.add(sha256BytesHex(Buffer.from(certificate.documentBase64, 'base64')));
   }
 
-  const fileBuffer = await fs.readFile(certificate.storagePath);
-  return sha256BytesHex(fileBuffer);
+  if (certificate.storagePath) {
+    try {
+      const fileBuffer = await fs.readFile(certificate.storagePath);
+      hashes.add(sha256BytesHex(fileBuffer));
+    } catch {
+      // Ignore stale local paths; hosted deployments use MongoDB-backed records.
+    }
+  }
+
+  if (!certificate.documentBase64) {
+    const block = {
+      index: certificate.blockNumber,
+      transactionId: certificate.transactionId,
+      hash: certificate.blockchainHash,
+    };
+    const generatedPdf = await generateCertificatePdf(certificate, block);
+    hashes.add(generatedPdf.fileHash);
+  }
+
+  return hashes;
 }
 
 function buildPdfUploadAiResult({ uploadedFileHash, matchedCertificate, pageCount }) {
@@ -146,9 +167,9 @@ async function verifyUploadedPdf(file, requestedBy = null) {
   let matchedCertificate = null;
 
   for (const certificate of database.certificates) {
-    const storedHash = await resolveStoredPdfHash(certificate);
+    const knownHashes = await resolvePdfHashes(certificate);
 
-    if (storedHash && storedHash === uploadedFileHash) {
+    if (knownHashes.has(uploadedFileHash)) {
       matchedCertificate = certificate;
       break;
     }
@@ -178,7 +199,7 @@ async function verifyUploadedPdf(file, requestedBy = null) {
       if (target) {
         target.verificationCount += 1;
 
-        if (!target.documentFileHash) {
+        if (!target.documentFileHash || !target.documentBase64) {
           target.documentFileHash = uploadedFileHash;
         }
       }

@@ -179,3 +179,22 @@ export async function openCertificateDocument(certificateId) {
   window.open(blobUrl, '_blank', 'noopener,noreferrer')
   window.setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000)
 }
+
+export async function downloadCertificateDocument(certificateId) {
+  const response = await client.get(`/certificates/document/${encodeURIComponent(certificateId)}`, {
+    responseType: 'blob',
+  })
+
+  const blob = response.data instanceof Blob
+    ? response.data
+    : new Blob([response.data], { type: 'application/pdf' })
+  const blobUrl = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+
+  link.href = blobUrl
+  link.download = `${certificateId}.pdf`
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000)
+}

@@ -23,23 +23,15 @@ async function generateQrCodeBuffer(text) {
   return Buffer.from(dataUrl.split(',')[1], 'base64');
 }
 
-function wrapMonospaceText(text, lineLength) {
-  const lines = [];
-
-  for (let index = 0; index < text.length; index += lineLength) {
-    lines.push(text.slice(index, index + lineLength));
-  }
-
-  return lines;
-}
-
 export async function generateCertificatePdf(certificate, block) {
-  const pdf = await PDFDocument.create();
+  const pdf = await PDFDocument.create({ updateMetadata: false });
+  const metadataDate = new Date(certificate.issuedAt);
+  pdf.setCreationDate(metadataDate);
+  pdf.setModificationDate(metadataDate);
   const page = pdf.addPage([842, 595]);
   const titleFont = await pdf.embedFont(StandardFonts.TimesRomanBold);
   const headingFont = await pdf.embedFont(StandardFonts.HelveticaBold);
   const bodyFont = await pdf.embedFont(StandardFonts.Helvetica);
-  const monoFont = await pdf.embedFont(StandardFonts.Courier);
   const { width, height } = page.getSize();
 
   page.drawRectangle({
@@ -151,26 +143,6 @@ export async function generateCertificatePdf(certificate, block) {
     font: bodyFont,
     size: 8,
     color: rgb(0.4, 0.45, 0.55),
-  });
-
-  // Verifier hash — to the right of the QR code
-  const hashX = qrX + qrSize + 16;
-  page.drawText('Verifier Hash', {
-    x: hashX,
-    y: 120,
-    font: headingFont,
-    size: 11,
-    color: rgb(0.25, 0.3, 0.39),
-  });
-
-  wrapMonospaceText(certificate.documentHash, 42).forEach((line, index) => {
-    page.drawText(line, {
-      x: hashX,
-      y: 102 - index * 12,
-      font: monoFont,
-      size: 8.5,
-      color: rgb(0.05, 0.18, 0.35),
-    });
   });
 
   page.drawText('Authorized Issuer', {

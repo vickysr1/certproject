@@ -629,6 +629,12 @@ tr:hover td {
   background: var(--accent); color: white; border: none; cursor: pointer; transition: all 0.15s;
 }
 .stud-pdfBtn:hover { opacity: 0.85; }
+.stud-downloadBtn {
+  padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: var(--radius-sm);
+  background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.15s;
+}
+.stud-downloadBtn:hover { border-color: var(--accent); color: var(--accent); }
 .stud-qrBtn {
   padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: var(--radius-sm);
   background: none; color: var(--accent); border: 1.5px solid var(--accent); cursor: pointer; transition: all 0.15s;
@@ -827,6 +833,12 @@ tr:hover td {
   padding: 4px 8px; border-radius: 4px; transition: all 0.15s;
 }
 .cert-expandBtn:hover { color: var(--accent); background: rgba(232, 118, 92, 0.08); }
+.cert-downloadBtn {
+  background: var(--accent); color: white; font-size: 11px;
+  padding: 4px 8px; border-radius: 4px;
+  transition: all 0.15s; margin-left: 8px;
+}
+.cert-downloadBtn:hover { opacity: 0.85; }
 .cert-actions { display: flex; gap: 6px; flex-wrap: wrap; min-width: 110px; }
 .cert-deleteBtn {
   background: none; color: var(--danger); font-size: 11px;

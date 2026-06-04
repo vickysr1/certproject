@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { deleteCertificate, getCertificates, openCertificateDocument } from '../../api.js'
+import { deleteCertificate, downloadCertificateDocument, getCertificates, openCertificateDocument } from '../../api.js'
 
 export default function AllCertificates() {
   const [certificates, setCertificates] = useState([])
@@ -103,6 +103,9 @@ export default function AllCertificates() {
                           <div className="cert-detailItem cert-detailFull">
                             <button className="cert-expandBtn" onClick={() => openCertificateDocument(certificate.id)}>
                               Open PDF
+                            </button>
+                            <button className="cert-downloadBtn" onClick={() => downloadCertificateDocument(certificate.id)}>
+                              Download PDF
                             </button>
                           </div>
                         </div>
