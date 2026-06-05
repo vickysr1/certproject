@@ -188,9 +188,20 @@ export default function Login() {
 
               {error && <p className="login-error">Error: {error}</p>}
 
-              <button type="submit" className="login-btn" disabled={loading}>
-                {loading ? <span className="spinner" /> : 'Register Account'}
-              </button>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                <button type="submit" className="login-btn" style={{ flex: 1 }} disabled={loading}>
+                  {loading ? <span className="spinner" /> : 'Register Account'}
+                </button>
+                <button
+                  type="button"
+                  className="login-btn-secondary"
+                  style={{ flex: 1 }}
+                  onClick={() => { setView('login'); setError(''); }}
+                  disabled={loading}
+                >
+                  Back to Sign In
+                </button>
+              </div>
             </form>
 
             <p className="login-toggle-text">

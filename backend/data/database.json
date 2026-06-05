@@ -119,6 +119,16 @@
   ],
   "verificationLogs": [
     {
+      "id": "834e8474-3c4f-4efa-b371-7c74ee18875f",
+      "createdAt": "2026-06-05T05:15:43.049Z",
+      "mode": "upload",
+      "fileName": "CERT_UPLOADED_CERT-2026-0005.pdf",
+      "requestedBy": null,
+      "valid": true,
+      "authentic": true,
+      "confidence": "99.8"
+    },
+    {
       "id": "be77e09f-dc04-4a08-9b28-f2f76698bbd5",
       "createdAt": "2026-06-05T05:13:19.448Z",
       "mode": "upload",
@@ -192,12 +202,22 @@
         "payloadHash": "0xc027618ccd5dc077c5f137f3abc6fdafbf12e5bf1e673053b4928dfb76056dce",
         "validator": "CertPortal-Ledger-Node-1",
         "hash": "0x61f37d0d0c582946755ea09000224a05dc72a450b52390388190fc56522f50ff"
+      },
+      {
+        "index": 5,
+        "timestamp": "2026-06-05T05:15:42.961Z",
+        "previousHash": "0x61f37d0d0c582946755ea09000224a05dc72a450b52390388190fc56522f50ff",
+        "transactionId": "0x714517a7978b1203cfde10d348eee741bc7dee174cf292ac790fc3f92ab36d2a",
+        "certificateId": "CERT-2026-0005",
+        "payloadHash": "0x037c0b1ed7e7b9608bba00c8503d75932042ae576ee22d08847091089890a499",
+        "validator": "CertPortal-Ledger-Node-1",
+        "hash": "0x6d7b84bef88fcbb132f1b11cc67e7b99e9ee5a9567f2e516f58106ca95e9618c"
       }
     ],
     "lastValidatedAt": "2026-04-12T15:19:36.013Z"
   },
   "counters": {
-    "studentSequence": 5,
-    "certificateSequence": 4
+    "studentSequence": 6,
+    "certificateSequence": 5
   }
 }
