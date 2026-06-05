@@ -198,3 +198,18 @@ export async function downloadCertificateDocument(certificateId) {
   link.remove()
   window.setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000)
 }
+
+export async function signup(data) {
+  return request({
+    url: '/auth/signup',
+    method: 'post',
+    data,
+  })
+}
+
+export async function approveStudent(studentId) {
+  return request({
+    url: `/students/${encodeURIComponent(studentId)}/approve`,
+    method: 'put',
+  })
+}

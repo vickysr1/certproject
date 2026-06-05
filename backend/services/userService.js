@@ -73,3 +73,50 @@ export async function archiveStudent(studentId) {
     return sanitizeUser(removed);
   });
 }
+
+export async function registerStudent(payload) {
+  return updateDatabase(async (database) => {
+    const email = payload.email.trim().toLowerCase();
+    const rollNumber = payload.rollNumber.trim().toUpperCase();
+    const userId = rollNumber;
+
+    if (database.users.some((user) => user.id === userId || user.rollNumber === rollNumber)) {
+      throw createHttpError(409, 'A student account already exists with this Roll Number');
+    }
+
+    if (database.users.some((user) => user.email === email)) {
+      throw createHttpError(409, 'A student account already exists with this Email ID');
+    }
+
+    const student = {
+      id: userId,
+      passwordHash: hashSync(payload.password, 10),
+      loginPassword: payload.password,
+      role: 'student',
+      status: 'pending',
+      name: normalizeText(payload.name),
+      email,
+      department: normalizeText(payload.department || 'General'),
+      batch: normalizeText(payload.batch || 'Current Batch'),
+      rollNumber,
+      createdAt: new Date().toISOString(),
+    };
+
+    database.users.push(student);
+    database.counters.studentSequence += 1;
+    return sanitizeUser(student);
+  });
+}
+
+export async function approveStudent(studentId) {
+  return updateDatabase(async (database) => {
+    const student = database.users.find((user) => user.id === studentId && user.role === 'student');
+
+    if (!student) {
+      throw createHttpError(404, 'Student account not found');
+    }
+
+    student.status = 'active';
+    return sanitizeUser(student);
+  });
+}

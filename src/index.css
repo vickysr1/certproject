@@ -1287,3 +1287,32 @@ tr:hover td {
   color: var(--accent-2);
 }
 
+.login-toggle-text {
+  font-size: 13px;
+  color: var(--text-3);
+  text-align: center;
+  margin-top: 18px;
+}
+.login-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+  text-decoration: underline;
+}
+.login-toggle-btn:hover {
+  color: var(--accent-2);
+}
+.login-success-box {
+  background: var(--surface-2);
+  border: 1px solid rgba(76, 175, 80, 0.25);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  animation: fadeUp 0.3s ease;
+}
+
+

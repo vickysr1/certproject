@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { asyncHandler } from '../lib/asyncHandler.js';
 import { validate } from '../lib/validate.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
-import { archiveStudent, createStudent, listStudents } from '../services/userService.js';
+import { archiveStudent, createStudent, listStudents, approveStudent } from '../services/userService.js';
 
 const router = Router();
 
@@ -33,6 +33,17 @@ router.post(
     const payload = validate(createStudentSchema, req.body);
     const student = await createStudent(payload);
     res.status(201).json(student);
+  }),
+);
+
+router.put(
+  '/:studentId/approve',
+  asyncHandler(async (req, res) => {
+    const student = await approveStudent(req.params.studentId);
+    res.json({
+      success: true,
+      student,
+    });
   }),
 );
 

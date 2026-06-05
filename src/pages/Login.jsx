@@ -1,14 +1,24 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { login } from '../api.js'
+import { login, signup } from '../api.js'
 
 export default function Login() {
   const nav = useNavigate()
+  const [view, setView] = useState('login') // 'login' or 'signup'
+  const [signupSuccess, setSignupSuccess] = useState(false)
   const [form, setForm] = useState({ userId: '', password: '' })
+  const [signupForm, setSignupForm] = useState({
+    name: '',
+    email: '',
+    rollNumber: '',
+    password: '',
+    department: '',
+    batch: '',
+  })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(event) {
+  async function handleLoginSubmit(event) {
     event.preventDefault()
     setError('')
     setLoading(true)
@@ -16,6 +26,21 @@ export default function Login() {
     try {
       const { user } = await login(form.userId, form.password)
       nav(user.role === 'admin' ? '/admin' : '/student', { replace: true })
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleSignupSubmit(event) {
+    event.preventDefault()
+    setError('')
+    setLoading(true)
+
+    try {
+      await signup(signupForm)
+      setSignupSuccess(true)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -42,39 +67,137 @@ export default function Login() {
         <h1 className="login-title">Academic Certificate<br /><em>Verification Portal</em></h1>
         <p className="login-sub">Blockchain-secured</p>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="login-field">
-            <label>User ID</label>
-            <input
-              type="text"
-              placeholder="e.g. admin or student01"
-              value={form.userId}
-              required
-              onChange={event => setForm(current => ({ ...current, userId: event.target.value }))}
-            />
+        {signupSuccess ? (
+          <div className="login-success-box">
+            <p style={{ color: 'var(--success)', fontWeight: 500, marginBottom: 18, fontSize: '14px', lineHeight: '1.5' }}>
+              Registration submitted successfully!<br />Please wait for administrator approval before signing in.
+            </p>
+            <button
+              type="button"
+              className="login-btn"
+              onClick={() => {
+                setView('login');
+                setSignupSuccess(false);
+              }}
+            >
+              Back to Sign In
+            </button>
           </div>
-          <div className="login-field">
-            <label>Password</label>
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={form.password}
-              required
-              onChange={event => setForm(current => ({ ...current, password: event.target.value }))}
-            />
-          </div>
+        ) : view === 'login' ? (
+          <>
+            <form onSubmit={handleLoginSubmit} className="login-form">
+              <div className="login-field">
+                <label>User ID, Roll Number, or Email</label>
+                <input
+                  type="text"
+                  placeholder="Enter User ID, Roll Number, or Email"
+                  value={form.userId}
+                  required
+                  onChange={event => setForm(current => ({ ...current, userId: event.target.value }))}
+                />
+              </div>
+              <div className="login-field">
+                <label>Password</label>
+                <input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={form.password}
+                  required
+                  onChange={event => setForm(current => ({ ...current, password: event.target.value }))}
+                />
+              </div>
 
-          {error && <p className="login-error">Error: {error}</p>}
+              {error && <p className="login-error">Error: {error}</p>}
 
-          <button type="submit" className="login-btn" disabled={loading}>
-            {loading ? <span className="spinner" /> : 'Sign In'}
-          </button>
-        </form>
+              <button type="submit" className="login-btn" disabled={loading}>
+                {loading ? <span className="spinner" /> : 'Sign In'}
+              </button>
+            </form>
 
-        <div className="login-hint">
-          <span>Admin: <code>admin</code> / <code>admin123</code></span>
-          <span>Student: <code>student01</code> / <code>student123</code></span>
-        </div>
+            <p className="login-toggle-text">
+              New student? <button type="button" className="login-toggle-btn" onClick={() => { setView('signup'); setError(''); }}>Sign up here</button>
+            </p>
+
+            <div className="login-hint">
+              <span>Admin: <code>admin</code> / <code>admin123</code></span>
+              <span>Student: <code>student01</code> / <code>student123</code></span>
+            </div>
+          </>
+        ) : (
+          <>
+            <form onSubmit={handleSignupSubmit} className="login-form">
+              <div className="login-field">
+                <label>Full Name *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Arjun Sharma"
+                  value={signupForm.name}
+                  required
+                  onChange={event => setSignupForm(current => ({ ...current, name: event.target.value }))}
+                />
+              </div>
+              <div className="login-field">
+                <label>Email Address *</label>
+                <input
+                  type="email"
+                  placeholder="e.g. arjun@student.edu"
+                  value={signupForm.email}
+                  required
+                  onChange={event => setSignupForm(current => ({ ...current, email: event.target.value }))}
+                />
+              </div>
+              <div className="login-field">
+                <label>Roll Number *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. CSE2024001"
+                  value={signupForm.rollNumber}
+                  required
+                  onChange={event => setSignupForm(current => ({ ...current, rollNumber: event.target.value }))}
+                />
+              </div>
+              <div className="login-field">
+                <label>Password *</label>
+                <input
+                  type="password"
+                  placeholder="Min 6 characters"
+                  value={signupForm.password}
+                  required
+                  minLength={6}
+                  onChange={event => setSignupForm(current => ({ ...current, password: event.target.value }))}
+                />
+              </div>
+              <div className="login-field">
+                <label>Department</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Computer Science"
+                  value={signupForm.department}
+                  onChange={event => setSignupForm(current => ({ ...current, department: event.target.value }))}
+                />
+              </div>
+              <div className="login-field">
+                <label>Batch</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 2022-2026"
+                  value={signupForm.batch}
+                  onChange={event => setSignupForm(current => ({ ...current, batch: event.target.value }))}
+                />
+              </div>
+
+              {error && <p className="login-error">Error: {error}</p>}
+
+              <button type="submit" className="login-btn" disabled={loading}>
+                {loading ? <span className="spinner" /> : 'Register Account'}
+              </button>
+            </form>
+
+            <p className="login-toggle-text">
+              Already have an account? <button type="button" className="login-toggle-btn" onClick={() => { setView('login'); setError(''); }}>Sign in here</button>
+            </p>
+          </>
+        )}
       </div>
     </div>
   )

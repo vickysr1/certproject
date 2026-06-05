@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { createStudent, deleteCertificate, deleteStudent, downloadCertificateDocument, getStudents, getCertificates, issueCertificate, openCertificateDocument, BASE_URL } from '../../api.js'
+import { createStudent, deleteCertificate, deleteStudent, downloadCertificateDocument, getStudents, getCertificates, issueCertificate, openCertificateDocument, approveStudent, BASE_URL } from '../../api.js'
 
 const DEGREES = [
   'Bachelor of Engineering',
@@ -96,6 +96,16 @@ export default function ManageStudents() {
     }
   }
 
+  async function handleApprove(studentId) {
+    if (!window.confirm(`Approve student account ${studentId}?`)) return
+    try {
+      await approveStudent(studentId)
+      await load()
+    } catch (err) {
+      alert(`Approval failed: ${err.message}`)
+    }
+  }
+
   async function toggleExpand(studentId) {
     if (expanded === studentId) {
       setExpanded(null)
@@ -163,6 +173,9 @@ export default function ManageStudents() {
     }
   }
 
+  const pendingStudents = students.filter(s => s.status === 'pending')
+  const activeStudents = students.filter(s => s.status !== 'pending')
+
   return (
     <div className="stud-root">
       <div className="stud-header">
@@ -227,11 +240,69 @@ export default function ManageStudents() {
         </div>
       )}
 
+      {pendingStudents.length > 0 && (
+        <div className="pending-approvals-box" style={{ marginBottom: 30 }}>
+          <h2 className="admin-sectionTitle" style={{ color: 'var(--accent)', fontSize: 13, fontWeight: 600 }}>
+            Pending Student Registrations ({pendingStudents.length})
+          </h2>
+          <div className="stud-tableWrap">
+            <table className="stud-table">
+              <thead>
+                <tr>
+                  <th>Roll Number</th>
+                  <th>Name / Email</th>
+                  <th>Department</th>
+                  <th>Batch</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingStudents.map(student => (
+                  <tr key={student.id}>
+                    <td><code className="stud-id">{student.rollNumber || student.id}</code></td>
+                    <td>
+                      <strong>{student.name}</strong>
+                      {student.email && <><br /><span className="stud-email">{student.email}</span></>}
+                    </td>
+                    <td>{student.department || 'N/A'}</td>
+                    <td>{student.batch || 'N/A'}</td>
+                    <td>
+                      <span className="badge badge-gold">Pending Approval</span>
+                    </td>
+                    <td className="stud-actions">
+                      <button
+                        className="stud-pdfBtn"
+                        style={{ background: 'var(--success)' }}
+                        onClick={() => handleApprove(student.id)}
+                      >
+                        Approve
+                      </button>
+                      <button
+                        className="stud-delBtn"
+                        style={{ border: '1px solid var(--danger)', color: 'var(--danger)' }}
+                        onClick={() => handleArchive(student.id)}
+                        disabled={archiving === student.id}
+                      >
+                        Reject
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <h2 className="admin-sectionTitle" style={{ fontSize: 13, fontWeight: 600, marginTop: 20 }}>
+        Registered Students ({activeStudents.length})
+      </h2>
       <div className="stud-tableWrap">
         {loading ? (
           <div className="stud-empty"><span className="spinner" /></div>
-        ) : students.length === 0 ? (
-          <div className="stud-empty">No students yet. Create one above.</div>
+        ) : activeStudents.length === 0 ? (
+          <div className="stud-empty">No registered students yet. Create one above.</div>
         ) : (
           <table className="stud-table">
             <thead>
@@ -247,7 +318,7 @@ export default function ManageStudents() {
               </tr>
             </thead>
             <tbody>
-              {students.map(student => (
+              {activeStudents.map(student => (
                 <Fragment key={student.id}>
                   <tr>
                     <td><code className="stud-id">{student.id}</code></td>
@@ -263,8 +334,8 @@ export default function ManageStudents() {
                     </td>
                     <td>{student.department || 'General'}</td>
                     <td>
-                      <span className={`badge ${student.status === 'active' ? 'badge-green' : 'badge-red'}`}>
-                        {student.status === 'active' ? 'Active' : 'Archived'}
+                      <span className={`badge ${student.status === 'active' ? 'badge-green' : student.status === 'pending' ? 'badge-gold' : 'badge-red'}`}>
+                        {student.status === 'active' ? 'Active' : student.status === 'pending' ? 'Pending' : 'Archived'}
                       </span>
                     </td>
                     <td className="stud-date">{new Date(student.createdAt).toLocaleDateString()}</td>
